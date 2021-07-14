@@ -193,8 +193,3 @@ def generate_site(basedir, context):
     target = os.path.join(basedir, 'public')
     os.makedirs(target, exist_ok=True)
     content_context.render_contents(context, env, target)
-
-
-# - Tag pages
-# - Paging
-# - Publish on Github

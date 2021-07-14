@@ -9,3 +9,8 @@ change, so that you can refer to the code instead of documentation,
 refer to its installation instructions for you platform if you don't already
 have it. Then run `pipenv install` to use only the `sitegen` command, or `pipenv
 install -dev` to install also development dependencies.
+
+## Todos
+
+- [ ] Tag pages
+- [ ] Paging
