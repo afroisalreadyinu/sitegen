@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jinja2 = "*"
+sitegen = {editable = true, path = "."}
+toml = "*"
+markupsafe = "*"
+markdown = "*"
+python-dateutil = "*"
+click = "*"
+watchdog = "*"
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.9"
