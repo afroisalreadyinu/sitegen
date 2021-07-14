@@ -1,9 +1,9 @@
-* sitegen
+# sitegen
 
 This is a static site generator. The code is suppose to be easy to read and
 change, so that you can refer to the code instead of documentation,
 
-** Installation
+## Installation
 
 [pipenv](https://pipenv.pypa.io/en/latest/) is used to manage dependencies;
 refer to its installation instructions for you platform if you don't already
