@@ -134,6 +134,9 @@ class ContentFile(RenderMixin):
             value = self._metadata['draft']
             assert value in ['true', 'false']
             self._metadata['draft'] = value == 'true'
+        if 'tags' in self._metadata:
+            value = self._metadata['tags']
+            self._metadata['tags'] = [x.strip() for x in value.split(',')]
         return self._metadata
 
     @property

@@ -13,4 +13,5 @@ install -dev` to install also development dependencies.
 ## Todos
 
 - [ ] Tag pages
+- [ ] RSS feed
 - [ ] Paging

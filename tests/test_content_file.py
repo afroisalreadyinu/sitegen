@@ -12,6 +12,7 @@ from common import FakeTemplate, FakeTemplates
 MD_CONTENT = """title: Blog Post One
 date: 28.02.2021 15:30
 draft: false
+tags: programming, software development, bash-works?
 
 This is the content of the post.
 """
@@ -91,9 +92,11 @@ class ContentFileTests(unittest.TestCase):
                 content_file.write(MD_CONTENT)
             cf = ContentFile('blog', 'the-entry.md', filepath)
             properties = cf.properties
-        assert properties == {'title': 'Blog Post One',
-                              'draft': False,
-                              'date': datetime(2021, 2, 28, 15, 30)}
+        assert properties == {
+            'title': 'Blog Post One',
+            'draft': False,
+            'date': datetime(2021, 2, 28, 15, 30),
+            'tags': ['programming', 'software development', 'bash-works?']}
 
 
     def test_render(self):
