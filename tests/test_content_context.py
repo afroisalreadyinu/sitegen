@@ -46,7 +46,6 @@ class ContentContextTests(unittest.TestCase):
         assert sorted(x.name for x in context.content_files) == ['blog-entry.md', 'index.md']
 
 
-
     def test_render_sections(self):
         context = ContentContext()
         templates = FakeTemplates([FakeTemplate('list.html')])
@@ -58,3 +57,7 @@ class ContentContextTests(unittest.TestCase):
             other_entry.write_text("Hello")
             context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
             context.render_sections({'title': 'Test'}, templates, tmpdirname)
+
+
+    def test_add_content_with_tag(self):
+        pass

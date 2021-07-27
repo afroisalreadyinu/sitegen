@@ -57,9 +57,13 @@ class ContentContext:
     def __init__(self):
         self.content_files = []
         self.sections = {}
+        self.tags = {}
 
     def add_content_file(self, content_file):
         self.content_files.append(content_file)
+        self.add_to_section(content_file)
+
+    def add_to_section(self, content_file):
         section_name = content_file.section
         if not section_name:
             return
