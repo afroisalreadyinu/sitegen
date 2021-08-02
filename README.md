@@ -1,6 +1,6 @@
 # sitegen
 
-This is a static site generator. The code is suppose to be easy to read and
+This is a static site generator. The code is supposed to be easy to read and
 change, so that you can refer to the code instead of documentation,
 
 ## Installation
