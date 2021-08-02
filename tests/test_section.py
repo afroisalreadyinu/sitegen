@@ -19,11 +19,10 @@ class SectionTests(unittest.TestCase):
     def make_content_file(self, section, name, title, draft=False, date=None):
         content_file = Path(self.workdir.name) / f"{name}.md"
         is_draft = str(draft).lower()
-        date = date or datetime.now().strftime("%d.%m.%Y %H:%M")
+        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ''
         content_file.write_text(f"""title: {title}
 draft: {is_draft}
-date: {date}
-
+{date}
 The content
 """)
         return ContentFile(section, name, str(content_file))

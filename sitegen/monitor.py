@@ -25,7 +25,6 @@ class EventHandler(FileSystemEventHandler):
         self.context = context
 
     def dispatch(self, event):
-        print(event.event_type)
         if event.event_type not in ['created', 'modified', 'deleted'] or event.is_directory:
             return
         eventpath = Path(event.src_path)
