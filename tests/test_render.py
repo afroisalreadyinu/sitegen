@@ -5,6 +5,17 @@ from pathlib import Path
 
 from sitegen import content
 
+def make_dirs_and_files(basedir, structure):
+    for key, value in structure.items():
+        if isinstance(value, str):
+            path = basedir / Path(key)
+            path.write_text(value)
+        else:
+            newpath = basedir / Path(key)
+            newpath.mkdir(exist_ok=True)
+            make_dirs_and_files(newpath, value)
+
+
 class RenderTests(unittest.TestCase):
 
     def setUp(self):
@@ -14,21 +25,33 @@ class RenderTests(unittest.TestCase):
         self.workdir.cleanup()
 
     def test_render_index(self):
+        contents = {"content": {"index.md": "This is content"},
+                    "templates": {"index.html": """<html><body>{{ item.html_content }}</body></html>"""}}
         base = Path(self.workdir.name)
-        contents = base / "content"
-        contents.mkdir()
-        index = contents / "index.md"
-        index.write_text("This is content")
-        templates = base / "templates"
-        templates.mkdir()
-        index_template = templates / "index.html"
-        index_template.write_text("""<html><body>{{ item.html_content }}</body></html>""")
+        make_dirs_and_files(base, contents)
 
         content.generate_site(str(base), {'title': 'Test'})
 
-        public = base / "public"
-        assert public.is_dir()
-        index = public / "index.html"
+        index = base / "public"/ "index.html"
         assert index.exists()
-        index_contents = index.read_text()
-        assert index_contents == "<html><body><p>This is content</p></body></html>"
+        assert index.read_text() == "<html><body><p>This is content</p></body></html>"
+
+
+    def test_render_section_page(self):
+        contents = {"content": {"index.md": "This is content",
+                                "blog": {"post1.md": "This is post1"}},
+                    "templates": {"index.html": """{{ item.html_content }}""",
+                                  "single.html": """{{ item.html_content }}""",
+                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}"""}}
+        base = Path(self.workdir.name)
+        make_dirs_and_files(base, contents)
+
+        content.generate_site(str(base), {'title': 'Test'})
+
+        section_index = base / "public" / "blog" / "index.html"
+        assert section_index.exists()
+        assert section_index.read_text() == "Link: /blog/post1"
+
+        post_page = base / "public" / "blog" / "post1" / "index.html"
+        assert post_page.exists()
+        assert post_page.read_text() == "<p>This is post1</p>"

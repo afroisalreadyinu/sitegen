@@ -37,7 +37,8 @@ class Section(RenderMixin):
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
         context['items'] = sorted((x for x in self.content_files if not x.is_draft),
-                                  key=lambda x: x.properties.get('date', datetime.now()), reverse=True)
+                                  key=lambda x: x.properties.get('date', datetime.now()),
+                                  reverse=True)
         context['section'] = self.name
         return context
 
@@ -200,3 +201,4 @@ def generate_site(basedir, context):
     target = os.path.join(basedir, 'public')
     os.makedirs(target, exist_ok=True)
     content_context.render_contents(context, env, target)
+    content_context.render_sections(context, env, target)
