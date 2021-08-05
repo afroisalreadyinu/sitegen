@@ -37,7 +37,7 @@ class Section(RenderMixin):
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
         context['items'] = sorted((x for x in self.content_files if not x.is_draft),
-                                  key=lambda x: x.properties.get('date', datetime.now()),
+                                  key=lambda x: x.publish_date,
                                   reverse=True)
         context['section'] = self.name
         return context
@@ -143,6 +143,10 @@ class ContentFile(RenderMixin):
             value = self._metadata['tags']
             self._metadata['tags'] = [x.strip() for x in value.split(',')]
         return self._metadata
+
+    @property
+    def publish_date(self):
+        return self.properties.get('date', datetime.now())
 
     @property
     def slug(self):
