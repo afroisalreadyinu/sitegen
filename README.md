@@ -41,7 +41,6 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
-- [ ] Export active tab
 - [ ] Tag pages
 - [ ] RSS feed
 - [x] Code highlighting
