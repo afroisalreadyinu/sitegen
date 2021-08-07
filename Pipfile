@@ -12,6 +12,7 @@ markdown = "*"
 python-dateutil = "*"
 click = "*"
 watchdog = "*"
+pygments = "*"
 
 [dev-packages]
 pytest = "*"

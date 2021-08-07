@@ -122,7 +122,7 @@ class ContentFile(RenderMixin):
             return self._html_content
         with open(self.abspath, 'r') as md_content_file:
             md_content = md_content_file.read()
-        self._markdown = Markdown(extensions=['smarty', 'meta'])
+        self._markdown = Markdown(extensions=['smarty', 'meta', 'fenced_code', 'codehilite'])
         self._html_content = Markup(self._markdown.convert(md_content))
         return self._html_content
 
