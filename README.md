@@ -28,7 +28,9 @@ The URL of your website should be `http://$BUCKETNAME.s3-website-$REGION.amazona
 
 ## Todos
 
+- [ ] Export active tab
 - [ ] Tag pages
 - [ ] RSS feed
+- [ ] Code highlighting
 - [ ] Paging
 - [ ] Search
