@@ -31,18 +31,29 @@ class ContentFileTests(unittest.TestCase):
         assert cf.slug == 'the-entry'
 
     def test_get_output_directory_no_section(self):
-        cf = ContentFile('', 'the-entry.md', '/tmp/the-entry.md')
+        filepath = str(self.make_content_file('content.md', "The content is this"))
+        cf = ContentFile('', 'the-entry.md', filepath)
         assert cf.get_output_directory('/tmp/public') == '/tmp/public/the-entry'
 
 
     def test_get_output_directory_index(self):
-        cf = ContentFile('', 'index.md', '/tmp/the-entry.md')
+        filepath = str(self.make_content_file('content.md', "The content is this"))
+        cf = ContentFile('', 'index.md', filepath)
         assert cf.get_output_directory('/tmp/public') == '/tmp/public'
 
 
     def test_get_output_directory_section_index(self):
-        cf = ContentFile('blog', 'index.md', '/tmp/index.md')
+        filepath = str(self.make_content_file('content.md', "The content is this"))
+        cf = ContentFile('blog', 'index.md', filepath)
         assert cf.get_output_directory('/tmp/public') == '/tmp/public/blog/index'
+
+
+    def test_get_output_directory_flat(self):
+        filepath = str(self.make_content_file('content.md', """flat: true
+
+The content is this"""))
+        cf = ContentFile('blog', 'content.md', filepath)
+        assert cf.get_output_directory('/tmp/public') == '/tmp/public/blog'
 
 
     def test_get_template_index(self):
@@ -132,3 +143,17 @@ The content is this"""))
         cf.render({'key': 'value'}, templates, str(public_dir))
         index_path = public_dir / "blog" / "the-entry" / "index.html"
         assert not index_path.exists()
+
+    def test_render_flat_content_file(self):
+        """If the `flat` property is set in the content file, do not render to a
+        directory with index.html, but instead into a same-named html file"""
+        filepath = str(self.make_content_file('content.md', """flat: true
+
+The content is this"""))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        templates = FakeTemplates([FakeTemplate('blog/single.html')])
+        public_dir = Path(self.workdir.name) /  'public'
+        cf.render({'key': 'value'}, templates, str(public_dir))
+        index_path = public_dir / "blog" / "the-entry" / "index.html"
+        assert not index_path.exists()
+        file_path = public_dir / "blog" / "the-entry.html"

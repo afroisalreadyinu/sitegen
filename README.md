@@ -41,8 +41,9 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
+- [x] Flat page
 - [ ] Tag pages
 - [ ] RSS feed
-- [x] Code highlighting
 - [ ] Paging
 - [ ] Search
+- [x] Code highlighting

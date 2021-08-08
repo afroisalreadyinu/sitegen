@@ -14,12 +14,15 @@ from dateutil.parser import parse as dateparse
 
 class RenderMixin:
 
+    def get_filename(self):
+        return "index.html"
+
     def render(self, context: Dict, templates, public_dir: str):
         context = self.get_context(context)
         template = self.get_template(templates)
         directory = self.get_output_directory(public_dir)
         os.makedirs(directory, exist_ok=True)
-        filepath = os.path.join(directory, "index.html")
+        filepath = os.path.join(directory, self.get_filename())
         with open(filepath, "w") as target_file:
             target_file.write(template.render(**context))
 
@@ -181,14 +184,29 @@ class ContentFile(RenderMixin):
                 template = templates.get_template("single.html")
         return template
 
+    def get_filename(self):
+        flat = self.properties.get('flat', False)
+        if flat:
+            return self.name[:-len(".md")] + ".html"
+        else:
+            return "index.html"
+
     def get_output_directory(self, public_dir):
+        flat = self.properties.get('flat', False)
         if not self.section:
             if self.name == 'index.md':
                 return public_dir
             # public/$filename/index.html
-            return os.path.join(public_dir, self.slug)
-        # public/$section/$filename/index.html
-        return os.path.join(public_dir, self.section, self.name[:-len(".md")])
+            if flat:
+                return public_dir
+            else:
+                return os.path.join(public_dir, self.slug)
+        if flat:
+            # public/$section/
+            return os.path.join(public_dir, self.section)
+        else:
+            # public/$section/$filename/
+            return os.path.join(public_dir, self.section, self.name[:-len(".md")])
 
     def render(self, *args, **kwargs):
         if self.is_draft:
@@ -196,12 +214,17 @@ class ContentFile(RenderMixin):
         super().render(*args, **kwargs)
 
 
+def to_date(dt):
+    """Format a datetime as only date"""
+    return dt.strftime('%d.%m.%Y')
+
 def generate_site(basedir, context):
     content_context = ContentContext.load_directory(basedir)
     env = Environment(
         loader=FileSystemLoader(os.path.join(basedir, "templates")),
         autoescape=True
     )
+    env.filters['to_date'] = to_date
     target = os.path.join(basedir, 'public')
     os.makedirs(target, exist_ok=True)
     content_context.render_contents(context, env, target)

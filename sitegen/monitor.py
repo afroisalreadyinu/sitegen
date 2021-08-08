@@ -1,6 +1,7 @@
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 from pathlib import Path
+import traceback
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -37,7 +38,11 @@ class EventHandler(FileSystemEventHandler):
         if dirname not in ['content', 'templates']:
             return
         print(f"{dirname.capitalize()} directory changed, regenerating")
-        generate_site(self.basedir, self.context)
+        try:
+            generate_site(self.basedir, self.context)
+        except:
+            print("Error generating site:")
+            traceback.print_exc()
 
 
 def monitor(basedir, context):
