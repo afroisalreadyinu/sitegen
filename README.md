@@ -8,7 +8,7 @@ change, so that you can refer to the code instead of documentation,
 [pipenv](https://pipenv.pypa.io/en/latest/) is used to manage dependencies;
 refer to its installation instructions for you platform if you don't already
 have it. Then run `pipenv install` to use only the `sitegen` command, or `pipenv
-install -dev` to install also development dependencies.
+install --dev` to install also development dependencies.
 
 ## Hosting a site on AWS
 
@@ -41,9 +41,9 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
-- [x] Flat page
 - [ ] Tag pages
 - [ ] RSS feed
 - [ ] Paging
 - [ ] Search
 - [x] Code highlighting
+- [x] Flat page
