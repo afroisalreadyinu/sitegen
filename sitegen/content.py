@@ -26,6 +26,7 @@ class RenderMixin:
         with open(filepath, "w") as target_file:
             target_file.write(template.render(**context))
 
+
 class Section(RenderMixin):
 
     def __init__(self, name):
@@ -55,6 +56,37 @@ class Section(RenderMixin):
     def get_output_directory(self, public_dir):
         # public/$section/index.html
         return os.path.join(public_dir, self.name)
+
+
+class TagCollection(RenderMixin):
+
+    def __init__(self, tag):
+        assert tag
+        self.tag = tag
+        self.content_files = []
+
+    def append_content_file(self, content_file):
+        self.content_files.append(content_file)
+
+    def get_context(self, existing_context):
+        context = copy.copy(existing_context)
+        context['items'] = sorted((x for x in self.content_files if not x.is_draft),
+                                  key=lambda x: x.publish_date,
+                                  reverse=True)
+        context['tag'] = self.tag
+        return context
+
+    def get_template(self, templates):
+        try:
+            template = templates.get_template(f"tag.html")
+        except TemplateNotFound:
+            template = templates.get_template("list.html")
+        return template
+
+    def get_output_directory(self, public_dir):
+        # public/tags/$tag/index.html
+        return os.path.join(public_dir, tags, self.tag)
+
 
 class ContentContext:
 

@@ -3,29 +3,17 @@ import unittest
 from types import SimpleNamespace as Bunch
 import tempfile
 from datetime import datetime, timedelta
-from pathlib import Path
 
-from sitegen.content import ContentFile, Section
-from common import FakeTemplate, FakeTemplates
+from sitegen.content import Section
+from common import FakeTemplate, FakeTemplates, CollectionTestBase
 
-class SectionTests(unittest.TestCase):
+class SectionTests(unittest.TestCase, CollectionTestBase):
 
     def setUp(self):
         self.workdir = tempfile.TemporaryDirectory()
 
     def tearDown(self):
         self.workdir.cleanup()
-
-    def make_content_file(self, section, name, title, draft=False, date=None):
-        content_file = Path(self.workdir.name) / f"{name}.md"
-        is_draft = str(draft).lower()
-        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ''
-        content_file.write_text(f"""title: {title}
-draft: {is_draft}
-{date}
-The content
-""")
-        return ContentFile(section, name, str(content_file))
 
     def test_get_context(self):
         section = Section('blog')

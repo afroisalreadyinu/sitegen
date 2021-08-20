@@ -1,4 +1,9 @@
+from pathlib import Path
+import tempfile
+
 from jinja2.exceptions import TemplateNotFound
+
+from sitegen.content import ContentFile
 
 class FakeTemplate:
     def __init__(self, path):
@@ -18,3 +23,17 @@ class FakeTemplates:
             if template.path == template_path:
                 return template
         raise TemplateNotFound(template_path)
+
+
+class CollectionTestBase:
+
+    def make_content_file(self, section, name, title, draft=False, date=None):
+        content_file = Path(self.workdir.name) / f"{name}.md"
+        is_draft = str(draft).lower()
+        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ''
+        content_file.write_text(f"""title: {title}
+draft: {is_draft}
+{date}
+The content
+""")
+        return ContentFile(section, name, str(content_file))

@@ -2,3 +2,4 @@ abl-mode-test-command "pytest --tb=native -x %s"
 abl-mode-test-path-module-class-separator "::"
 abl-mode-test-path-class-method-separator "::"
 abl-mode-use-file-module nil
+abl-mode-install-command "pipenv install --dev"
