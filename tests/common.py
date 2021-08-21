@@ -12,7 +12,7 @@ class FakeTemplate:
 
     def render(self, **context):
         self.render_context = context
-        return ''.join(str(x) for x in context.values())
+        return '{}: {}'.format(self.path, ''.join(str(x) for x in context.values()))
 
 class FakeTemplates:
     def __init__(self, templates):

@@ -55,3 +55,24 @@ class RenderTests(unittest.TestCase):
         post_page = base / "public" / "blog" / "post1" / "index.html"
         assert post_page.exists()
         assert post_page.read_text() == "<p>This is post1</p>"
+
+
+    def test_render_tags_pages(self):
+        contents = {"content": {"index.md": "This is content",
+                                "blog": {"post1.md": """tags: tech, sw development, question? mark
+
+This is post1
+"""}},
+                    "templates": {"index.html": """{{ item.html_content }}""",
+                                  "single.html": """{{ item.html_content }}""",
+                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}""",
+                                  "tag.html": """Tag: {{ tag }} {% for item in items %}Link: {{ item.web_path }}{% endfor %}
+"""}}
+        base = Path(self.workdir.name)
+        make_dirs_and_files(base, contents)
+
+        content.generate_site(str(base), {'title': 'Test'})
+
+        tech_index = base / "public" / "tag" / "tech" / "index.html"
+        assert tech_index.exists()
+        assert tech_index.read_text() == "Tag: tech Link: /blog/post1"

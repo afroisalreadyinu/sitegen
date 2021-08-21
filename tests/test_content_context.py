@@ -3,13 +3,19 @@ import tempfile
 from pathlib import Path
 
 from sitegen.content import ContentFile, ContentContext
-from common import FakeTemplates, FakeTemplate
+from common import FakeTemplates, FakeTemplate, CollectionTestBase
 
-class ContentContextTests(unittest.TestCase):
+class ContentContextTests(unittest.TestCase, CollectionTestBase):
+
+    def setUp(self):
+        self.workdir = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.workdir.cleanup()
 
     def test_add_content(self):
         context = ContentContext()
-        content = ContentFile('blog', 'the-entry', '/tmp/the-entry.md')
+        content = self.make_content_file('blog', 'the-entry', 'The Entry')
         context.add_content_file(content)
         assert 'blog' in context.sections
         section = context.sections['blog']
@@ -19,14 +25,14 @@ class ContentContextTests(unittest.TestCase):
 
     def test_add_content_existing_section(self):
         context = ContentContext()
-        context.add_content_file(ContentFile('blog', 'the-entry', '/tmp/the-entry.md'))
-        context.add_content_file(ContentFile('blog', 'other-entry', '/tmp/other-entry.md'))
+        context.add_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
+        context.add_content_file(self.make_content_file('blog', 'other-entry', 'Other Entry'))
         assert 'blog' in context.sections
         section = context.sections['blog']
         assert len(section.content_files) == 2
 
     def test_skip_no_section(self):
-        content = ContentFile('', 'the-entry', '/tmp/the-entry.md')
+        content = self.make_content_file('', 'the-entry', 'The Entry')
         context = ContentContext()
         context.add_content_file(content)
         assert len(context.sections) == 0
@@ -57,7 +63,3 @@ class ContentContextTests(unittest.TestCase):
             other_entry.write_text("Hello")
             context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
             context.render_sections({'title': 'Test'}, templates, tmpdirname)
-
-
-    def test_add_content_with_tag(self):
-        pass

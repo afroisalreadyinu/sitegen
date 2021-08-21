@@ -110,7 +110,7 @@ The content is this"""))
             'title': 'Blog Post One',
             'draft': False,
             'date': datetime(2021, 2, 28, 15, 30),
-            'tags': ['programming', 'software development', 'bash-works?']}
+            'tags': 'programming, software development, bash-works?'}
 
     def test_publish_date(self):
         filepath = str(self.make_content_file('content.md', MD_CONTENT))
@@ -123,6 +123,16 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         assert datetime.now() - cf.publish_date < timedelta(milliseconds=1)
 
+    def test_tags_empty(self):
+        content = '\n'.join([x for x in MD_CONTENT.split('\n') if not x.startswith('tags:')])
+        filepath = str(self.make_content_file('content.md', content))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        assert cf.tags == []
+
+    def test_tags(self):
+        filepath = str(self.make_content_file('content.md', MD_CONTENT))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        assert cf.tags == ['programming', 'software development', 'bash-works?']
 
     def test_render(self):
         filepath = str(self.make_content_file('content.md', "The content is this"))

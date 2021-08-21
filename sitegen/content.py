@@ -26,6 +26,10 @@ class RenderMixin:
         with open(filepath, "w") as target_file:
             target_file.write(template.render(**context))
 
+def sort_by_date(content_files):
+    return sorted((x for x in content_files if not x.is_draft),
+                  key=lambda x: x.publish_date,
+                  reverse=True)
 
 class Section(RenderMixin):
 
@@ -40,9 +44,7 @@ class Section(RenderMixin):
 
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
-        context['items'] = sorted((x for x in self.content_files if not x.is_draft),
-                                  key=lambda x: x.publish_date,
-                                  reverse=True)
+        context['items'] = sort_by_date(self.content_files)
         context['section'] = self.name
         return context
 
@@ -70,22 +72,20 @@ class TagCollection(RenderMixin):
 
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
-        context['items'] = sorted((x for x in self.content_files if not x.is_draft),
-                                  key=lambda x: x.publish_date,
-                                  reverse=True)
+        context['items'] = sort_by_date(self.content_files)
         context['tag'] = self.tag
         return context
 
     def get_template(self, templates):
         try:
-            template = templates.get_template(f"tag.html")
+            template = templates.get_template("tag.html")
         except TemplateNotFound:
             template = templates.get_template("list.html")
         return template
 
     def get_output_directory(self, public_dir):
         # public/tags/$tag/index.html
-        return os.path.join(public_dir, tags, self.tag)
+        return os.path.join(public_dir, "tag", self.tag)
 
 
 class ContentContext:
@@ -98,6 +98,7 @@ class ContentContext:
     def add_content_file(self, content_file):
         self.content_files.append(content_file)
         self.add_to_section(content_file)
+        self.add_to_tag_collections(content_file)
 
     def add_to_section(self, content_file):
         section_name = content_file.section
@@ -109,6 +110,14 @@ class ContentContext:
             self.sections[section_name] = section
         section.append_content_file(content_file)
 
+    def add_to_tag_collections(self, content_file):
+        for tag in content_file.tags:
+            tc = self.tags.get(tag)
+            if not tc:
+                tc = TagCollection(tag)
+                self.tags[tag] = tc
+            tc.append_content_file(content_file)
+
     def render_contents(self, context, templates, public_dir):
         for content in self.content_files:
             content.render(context, templates, public_dir)
@@ -116,6 +125,10 @@ class ContentContext:
     def render_sections(self, context, templates, public_dir):
         for section in self.sections.values():
             section.render(context, templates, public_dir)
+
+    def render_tags(self, context, templates, public_dir):
+        for tc in self.tags.values():
+            tc.render(context, templates, public_dir)
 
     @classmethod
     def load_directory(cls, basedir: str):
@@ -174,9 +187,6 @@ class ContentFile(RenderMixin):
             value = self._metadata['draft']
             assert value in ['true', 'false']
             self._metadata['draft'] = value == 'true'
-        if 'tags' in self._metadata:
-            value = self._metadata['tags']
-            self._metadata['tags'] = [x.strip() for x in value.split(',')]
         return self._metadata
 
     @property
@@ -196,6 +206,10 @@ class ContentFile(RenderMixin):
     @property
     def is_draft(self):
         return self.properties.get('draft', False)
+
+    @property
+    def tags(self):
+        return [x.strip() for x in self.properties.get('tags', '').split(',') if x.strip()]
 
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
@@ -261,3 +275,4 @@ def generate_site(basedir, context):
     os.makedirs(target, exist_ok=True)
     content_context.render_contents(context, env, target)
     content_context.render_sections(context, env, target)
+    content_context.render_tags(context, env, target)
