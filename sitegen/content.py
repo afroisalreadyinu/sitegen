@@ -93,7 +93,7 @@ class ContentContext:
     def __init__(self):
         self.content_files = []
         self.sections = {}
-        self.tags = {}
+        self.tag_collections = {}
 
     def add_content_file(self, content_file):
         self.content_files.append(content_file)
@@ -112,10 +112,10 @@ class ContentContext:
 
     def add_to_tag_collections(self, content_file):
         for tag in content_file.tags:
-            tc = self.tags.get(tag)
+            tc = self.tag_collections.get(tag)
             if not tc:
                 tc = TagCollection(tag)
-                self.tags[tag] = tc
+                self.tag_collections[tag] = tc
             tc.append_content_file(content_file)
 
     def render_contents(self, context, templates, public_dir):
@@ -127,7 +127,7 @@ class ContentContext:
             section.render(context, templates, public_dir)
 
     def render_tags(self, context, templates, public_dir):
-        for tc in self.tags.values():
+        for tc in self.tag_collections.values():
             tc.render(context, templates, public_dir)
 
     @classmethod

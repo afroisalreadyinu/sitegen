@@ -22,6 +22,7 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         assert section.name == 'blog'
         assert len(section.content_files) == 1
         assert section.content_files[0] is content
+        assert len(context.tag_collections) == 0
 
     def test_add_content_existing_section(self):
         context = ContentContext()
@@ -36,6 +37,18 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         context = ContentContext()
         context.add_content_file(content)
         assert len(context.sections) == 0
+
+    def test_add_content_with_tag(self):
+        context = ContentContext()
+        context.add_content_file(self.make_content_file('', 'the-entry', 'The Entry', tags=['one', 'two']))
+        context.add_content_file(self.make_content_file('', 'other-entry', 'Other Entry', tags=['two', 'three']))
+        assert len(context.tag_collections) == 3
+        for tag in ['one', 'two', 'three']:
+            assert tag in context.tag_collections
+        assert len(context.tag_collections['one'].content_files) == 1
+        assert len(context.tag_collections['two'].content_files) == 2
+        assert len(context.tag_collections['three'].content_files) == 1
+
 
     def test_load_directory(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
