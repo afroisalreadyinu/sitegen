@@ -130,6 +130,11 @@ class ContentContext:
         for tc in self.tag_collections.values():
             tc.render(context, templates, public_dir)
 
+    def render(self, context, templates, public_dir):
+        self.render_contents(context, templates, public_dir)
+        self.render_sections(context, templates, public_dir)
+        self.render_tags(context, templates, public_dir)
+
     @classmethod
     def load_directory(cls, basedir: str):
         content_context = cls()
@@ -273,6 +278,4 @@ def generate_site(basedir, context):
     env.filters['to_date'] = to_date
     target = os.path.join(basedir, 'public')
     os.makedirs(target, exist_ok=True)
-    content_context.render_contents(context, env, target)
-    content_context.render_sections(context, env, target)
-    content_context.render_tags(context, env, target)
+    content_context.render(context, env, target)
