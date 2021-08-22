@@ -75,6 +75,7 @@ class TagCollection(RenderMixin):
         context = copy.copy(existing_context)
         context['items'] = sort_by_date(self.content_files)
         context['tag'] = self.tag
+        context['pageurl'] = furl(existing_context['baseurl']).set(path=f"/tag/{self.tag}").url
         return context
 
     def get_template(self, templates):
