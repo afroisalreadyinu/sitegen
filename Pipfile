@@ -13,6 +13,7 @@ python-dateutil = "*"
 click = "*"
 watchdog = "*"
 pygments = "*"
+furl = "*"
 
 [dev-packages]
 pytest = "*"

@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Dict
 from datetime import datetime
 
+from furl import furl
 from jinja2 import Environment, FileSystemLoader, select_autoescape, Markup
 from jinja2.exceptions import TemplateNotFound
 
@@ -220,6 +221,7 @@ class ContentFile(RenderMixin):
         context = copy.copy(existing_context)
         context['item'] = self
         context['section'] = self.section
+        context['pageurl'] = furl(existing_context['baseurl']).set(path=self.web_path).url
         return context
 
     def get_template(self, templates):

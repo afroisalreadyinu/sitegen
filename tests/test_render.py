@@ -30,7 +30,7 @@ class RenderTests(unittest.TestCase):
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test'})
+        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
 
         index = base / "public"/ "index.html"
         assert index.exists()
@@ -46,7 +46,7 @@ class RenderTests(unittest.TestCase):
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test'})
+        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
 
         section_index = base / "public" / "blog" / "index.html"
         assert section_index.exists()
@@ -71,7 +71,7 @@ This is post1
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test'})
+        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
 
         tech_index = base / "public" / "tag" / "tech" / "index.html"
         assert tech_index.exists()

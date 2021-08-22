@@ -90,11 +90,11 @@ The content is this"""))
     def test_context(self):
         filepath = str(self.make_content_file('content.md', "The content is this"))
         cf = ContentFile('blog', 'content.md', filepath)
-        existing_context = {'title': 'The Blog'}
+        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
         new_context = cf.get_context(existing_context)
         assert new_context is not existing_context
         assert new_context.pop('item') is cf
-        assert ContentFile('', 'content.md', filepath).get_context({})['section'] == ''
+        assert ContentFile('', 'content.md', filepath).get_context(existing_context)['section'] == ''
 
     def test_web_path(self):
         cf = ContentFile('blog', 'the-entry.md', '/tmp/the-entry.md')
@@ -139,7 +139,7 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         templates = FakeTemplates([FakeTemplate('blog/single.html')])
         public_dir = Path(self.workdir.name) /  'public'
-        cf.render({'key': 'value'}, templates, str(public_dir))
+        cf.render({'key': 'value', 'baseurl': 'http://bb.com'}, templates, str(public_dir))
         assert os.path.exists(os.path.join(public_dir, 'blog/the-entry/index.html'))
 
 
@@ -163,7 +163,7 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         templates = FakeTemplates([FakeTemplate('blog/single.html')])
         public_dir = Path(self.workdir.name) /  'public'
-        cf.render({'key': 'value'}, templates, str(public_dir))
+        cf.render({'key': 'value', 'baseurl': 'http://bb.com'}, templates, str(public_dir))
         index_path = public_dir / "blog" / "the-entry" / "index.html"
         assert not index_path.exists()
         file_path = public_dir / "blog" / "the-entry.html"
