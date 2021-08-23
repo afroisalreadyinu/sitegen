@@ -62,7 +62,7 @@ class Section(RenderMixin):
         return os.path.join(public_dir, self.name)
 
 
-class TagCollection(RenderMixin):
+class ContentTag(RenderMixin):
 
     def __init__(self, tag):
         assert tag
@@ -117,7 +117,7 @@ class ContentContext:
         for tag in content_file.tags:
             tc = self.tag_collections.get(tag)
             if not tc:
-                tc = TagCollection(tag)
+                tc = ContentTag(tag)
                 self.tag_collections[tag] = tc
             tc.append_content_file(content_file)
 

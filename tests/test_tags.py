@@ -3,11 +3,11 @@ import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from sitegen.content import TagCollection
+from sitegen.content import ContentTag
 
 from common import FakeTemplate, FakeTemplates, CollectionTestBase
 
-class TagCollectionTests(unittest.TestCase, CollectionTestBase):
+class ContentTagTests(unittest.TestCase, CollectionTestBase):
 
     def setUp(self):
         self.workdir = tempfile.TemporaryDirectory()
@@ -16,7 +16,7 @@ class TagCollectionTests(unittest.TestCase, CollectionTestBase):
         self.workdir.cleanup()
 
     def test_get_context(self):
-        tc = TagCollection('test')
+        tc = ContentTag('test')
         tc.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
         context = tc.get_context({'title': 'The Tag', 'baseurl': 'http://bb.com'})
         assert 'items' in context
@@ -28,7 +28,7 @@ class TagCollectionTests(unittest.TestCase, CollectionTestBase):
 
 
     def test_date_sorting(self):
-        tc = TagCollection('blog')
+        tc = ContentTag('blog')
         tc.append_content_file(self.make_content_file('blog', 'top-content', 'The Entry'))
         tc.append_content_file(self.make_content_file('blog', 'middle-content', 'The Entry',
                                                       date=datetime.now() - timedelta(hours=1)))
@@ -42,7 +42,7 @@ class TagCollectionTests(unittest.TestCase, CollectionTestBase):
         assert items[2].name == 'bottom-content'
 
     def test_skip_draft(self):
-        tc = TagCollection('blog')
+        tc = ContentTag('blog')
         tc.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         tc.append_content_file(self.make_content_file('blog', 'other-content', 'The Entry', draft=False))
         context = tc.get_context({'baseurl': 'http://bb.com'})
@@ -50,7 +50,7 @@ class TagCollectionTests(unittest.TestCase, CollectionTestBase):
         assert context['items'][0].name == 'other-content'
 
     def test_render(self):
-        tc = TagCollection('tech')
+        tc = ContentTag('tech')
         tc.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         templates = FakeTemplates([FakeTemplate('list.html')])
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -60,7 +60,7 @@ class TagCollectionTests(unittest.TestCase, CollectionTestBase):
             assert output_path.read_text().startswith('list.html')
 
     def test_prefer_tag_template(self):
-        tc = TagCollection('tech')
+        tc = ContentTag('tech')
         tc.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         templates = FakeTemplates([FakeTemplate('list.html'), FakeTemplate('tag.html')])
         with tempfile.TemporaryDirectory() as tmpdirname:
