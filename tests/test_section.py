@@ -25,7 +25,7 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         assert len(new_context.pop('items')) == 2
         assert new_context == {'section': 'blog',
                                'baseurl': 'http://bb.com',
-                               'pageurl': 'http://bb.com/section/blog',
+                               'pageurl': 'http://bb.com/blog/',
                                'title': 'The Blog'}
 
     def test_date_sorting(self):
