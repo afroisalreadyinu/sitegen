@@ -75,4 +75,4 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
             other_entry = Path(tmpdirname) / 'other-entry.md'
             other_entry.write_text("Hello")
             context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
-            context.render_sections({'title': 'Test'}, templates, tmpdirname)
+            context.render_sections({'title': 'Test', 'baseurl': 'http://bb.com'}, templates, tmpdirname)

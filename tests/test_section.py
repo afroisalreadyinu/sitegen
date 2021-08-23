@@ -19,11 +19,13 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
         section.append_content_file(self.make_content_file('blog', 'other-entry', 'Other Entry'))
-        existing_context = {'title': 'The Blog'}
+        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
         new_context = section.get_context(existing_context)
         assert 'items' in new_context
         assert len(new_context.pop('items')) == 2
         assert new_context == {'section': 'blog',
+                               'baseurl': 'http://bb.com',
+                               'pageurl': 'http://bb.com/section/blog',
                                'title': 'The Blog'}
 
     def test_date_sorting(self):
@@ -33,7 +35,8 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
                                                            date=datetime.now() - timedelta(hours=1)))
         section.append_content_file(self.make_content_file('blog', 'bottom-content', 'The Entry',
                                                            date=datetime.now() - timedelta(hours=2)))
-        context = section.get_context({})
+        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
+        context = section.get_context(existing_context)
         items = context['items']
         assert len(items) == 3
         assert items[0].name == 'top-content'
@@ -44,7 +47,8 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         section.append_content_file(self.make_content_file('blog', 'other-content', 'The Entry', draft=False))
-        context = section.get_context({})
+        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
+        context = section.get_context(existing_context)
         assert len(context['items']) == 1
         assert context['items'][0].name == 'other-content'
 
@@ -53,5 +57,6 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         templates = FakeTemplates([FakeTemplate('list.html')])
         with tempfile.TemporaryDirectory() as tmpdirname:
-            rendered = section.render({'title': 'The Blog'}, templates, tmpdirname)
+            rendered = section.render({'title': 'The Blog', 'baseurl': 'http://bb.com'},
+                                      templates, tmpdirname)
             assert os.path.exists(os.path.join(tmpdirname, 'blog/index.html'))

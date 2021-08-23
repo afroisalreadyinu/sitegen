@@ -47,6 +47,7 @@ class Section(RenderMixin):
         context = copy.copy(existing_context)
         context['items'] = sort_by_date(self.content_files)
         context['section'] = self.name
+        context['pageurl'] = furl(existing_context['baseurl']).set(path=f"/section/{self.name}").url
         return context
 
     def get_template(self, templates):
