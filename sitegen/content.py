@@ -61,6 +61,43 @@ class Section(RenderMixin):
         # public/$section/index.html
         return os.path.join(public_dir, self.name)
 
+class TagCollection(RenderMixin):
+
+    def __init__(self):
+        self.content_tags = {}
+
+    def append_content_file(self, content_file):
+        for tag in content_file.tags:
+            ct = self.content_tags.get(tag)
+            if not ct:
+                ct = ContentTag(tag)
+                self.content_tags[tag] = ct
+            ct.append_content_file(content_file)
+
+    def get_context(self, existing_context):
+        context = copy.copy(existing_context)
+        context['items'] = sorted(self.content_tags.values(), key=lambda x: x.tag)
+        context['pageurl'] = furl(existing_context['baseurl']).set(path="/tag/").url
+        return context
+
+    def get_template(self, templates):
+        try:
+            template = templates.get_template("tags.html")
+        except TemplateNotFound:
+            template = templates.get_template("list.html")
+        return template
+
+    def get_output_directory(self, public_dir):
+        # public/tag/
+        return os.path.join(public_dir, "tag")
+
+    def render(self, context, templates, public_dir):
+        if not self.content_tags:
+            return
+        for ct in self.content_tags.values():
+            ct.render(context, templates, public_dir)
+        super().render(context, templates, public_dir)
+
 
 class ContentTag(RenderMixin):
 
@@ -72,11 +109,15 @@ class ContentTag(RenderMixin):
     def append_content_file(self, content_file):
         self.content_files.append(content_file)
 
+    @property
+    def web_path(self):
+        return f"/tag/{self.tag}"
+
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
         context['items'] = sort_by_date(self.content_files)
         context['tag'] = self.tag
-        context['pageurl'] = furl(existing_context['baseurl']).set(path=f"/tag/{self.tag}").url
+        context['pageurl'] = furl(existing_context['baseurl']).set(path=self.web_path).url
         return context
 
     def get_template(self, templates):
@@ -96,12 +137,12 @@ class ContentContext:
     def __init__(self):
         self.content_files = []
         self.sections = {}
-        self.tag_collections = {}
+        self.tag_collection = TagCollection()
 
     def add_content_file(self, content_file):
         self.content_files.append(content_file)
         self.add_to_section(content_file)
-        self.add_to_tag_collections(content_file)
+        self.tag_collection.append_content_file(content_file)
 
     def add_to_section(self, content_file):
         section_name = content_file.section
@@ -113,14 +154,6 @@ class ContentContext:
             self.sections[section_name] = section
         section.append_content_file(content_file)
 
-    def add_to_tag_collections(self, content_file):
-        for tag in content_file.tags:
-            tc = self.tag_collections.get(tag)
-            if not tc:
-                tc = ContentTag(tag)
-                self.tag_collections[tag] = tc
-            tc.append_content_file(content_file)
-
     def render_contents(self, context, templates, public_dir):
         for content in self.content_files:
             content.render(context, templates, public_dir)
@@ -129,14 +162,10 @@ class ContentContext:
         for section in self.sections.values():
             section.render(context, templates, public_dir)
 
-    def render_tags(self, context, templates, public_dir):
-        for tc in self.tag_collections.values():
-            tc.render(context, templates, public_dir)
-
     def render(self, context, templates, public_dir):
         self.render_contents(context, templates, public_dir)
         self.render_sections(context, templates, public_dir)
-        self.render_tags(context, templates, public_dir)
+        self.tag_collection.render(context, templates, public_dir)
 
     @classmethod
     def load_directory(cls, basedir: str):

@@ -59,19 +59,23 @@ class RenderTests(unittest.TestCase):
 
     def test_render_tags_pages(self):
         contents = {"content": {"index.md": "This is content",
-                                "blog": {"post1.md": """tags: tech, sw development, question? mark
+                                "blog": {"post1.md": """tags: tech, sw development
 
 This is post1
 """}},
                     "templates": {"index.html": """{{ item.html_content }}""",
                                   "single.html": """{{ item.html_content }}""",
-                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}""",
+                                  "list.html": """{% for item in items %}Link: {{ item.web_path }} {% endfor %}""",
                                   "tag.html": """Tag: {{ tag }} {% for item in items %}Link: {{ item.web_path }}{% endfor %}
 """}}
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
         content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
+
+        tag_index = base / "public" / "tag" /  "index.html"
+        assert tag_index.exists()
+        assert tag_index.read_text() == "Link: /tag/sw development Link: /tag/tech "
 
         tech_index = base / "public" / "tag" / "tech" / "index.html"
         assert tech_index.exists()

@@ -56,7 +56,6 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         templates = FakeTemplates([FakeTemplate('list.html')])
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            rendered = section.render({'title': 'The Blog', 'baseurl': 'http://bb.com'},
-                                      templates, tmpdirname)
-            assert os.path.exists(os.path.join(tmpdirname, 'blog/index.html'))
+        rendered = section.render({'title': 'The Blog', 'baseurl': 'http://bb.com'},
+                                  templates, self.workdir.name)
+        assert os.path.exists(os.path.join(self.workdir.name, 'blog/index.html'))
