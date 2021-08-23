@@ -207,6 +207,8 @@ class ContentFile(RenderMixin):
 
     @property
     def web_path(self):
+        if self.name == 'index.md':
+            return "/"
         if not self.section:
             return f"/{self.slug}"
         return f"/{self.section}/{self.slug}"

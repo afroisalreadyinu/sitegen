@@ -112,11 +112,25 @@ The content is this"""))
                                'pageurl': 'http://bb.com/content'}
 
 
+    def test_context_index_page(self):
+        filepath = str(self.make_content_file('index.md', "The content is this"))
+        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
+        cf = ContentFile('', 'index.md', filepath)
+        new_context = cf.get_context(existing_context)
+        assert new_context is not existing_context
+        assert new_context.pop('item') is cf
+        assert new_context == {'title': 'The Blog',
+                               'section': '',
+                               'baseurl': 'http://bb.com',
+                               'pageurl': 'http://bb.com/'}
+
     def test_web_path(self):
         cf = ContentFile('blog', 'the-entry.md', '/tmp/the-entry.md')
         assert cf.web_path == '/blog/the-entry'
         cf = ContentFile('', 'the-entry.md', '/tmp/the-entry.md')
         assert cf.web_path == '/the-entry'
+        cf = ContentFile('', 'index.md', '/tmp/the-entry.md')
+        assert cf.web_path == '/'
 
     def test_load_properties(self):
         filepath = str(self.make_content_file('content.md', MD_CONTENT))
