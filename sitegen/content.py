@@ -17,7 +17,6 @@ from dateutil.parser import parse as dateparse
 @dataclass
 class PageContent:
     title: str
-    html_content: str
     description: str
     canonical_url: str
     date: datetime
@@ -59,11 +58,17 @@ class Section(RenderMixin):
         assert self.name == content_file.section
         self.content_files.append(content_file)
 
-    def get_context(self, existing_context):
-        context = copy.copy(existing_context)
+    def get_context(self, config):
+        context = {}
         context['items'] = sort_by_date(self.content_files)
-        context['item'] = self
-        context['pageurl'] = furl(existing_context['baseurl']).set(path=f"/{self.name}/").url
+        url = furl(config['site']['url']).set(path=f"/{self.name}/").url
+        context['page_content'] = PageContent(title=self.name,
+                                              description='',
+                                              canonical_url=url,
+                                              date=max(x.publish_date for x in self.content_files))
+        context['site_info'] = SiteInfo(site_name=config['site']['title'],
+                                        base_url=config['site']['url'],
+                                        section=self.name)
         return context
 
     def get_template(self, templates):
@@ -278,7 +283,6 @@ class ContentFile(RenderMixin):
         context = {}
         context['page_content'] = PageContent(
             title=self.properties['title'],
-            html_content=self.html_content,
             description=self.description,
             canonical_url=furl(site_config['site']['url']).set(path=self.web_path).url,
             date=self.publish_date)

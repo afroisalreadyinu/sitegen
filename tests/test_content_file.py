@@ -110,7 +110,6 @@ The content is this"""))
         cf = ContentFile('blog', 'content.md', filepath)
         context = cf.get_context(CONFIG)
         assert context['page_content'] == PageContent(title='',
-                                                      html_content='<p>The content is this</p>',
                                                       description='',
                                                       canonical_url='http://bb.com/blog/content',
                                                       date=sentinel)
@@ -121,7 +120,6 @@ The content is this"""))
         cf = ContentFile('', 'content.md', filepath)
         context = cf.get_context(CONFIG)
         assert context['page_content'] == PageContent(title='Blog Post One',
-                                                      html_content='<p>This is the content of the post.</p>',
                                                       description='',
                                                       canonical_url='http://bb.com/content',
                                                       date=datetime(2021, 2, 28, 15, 30))
@@ -133,7 +131,6 @@ The content is this"""))
         cf = ContentFile('', 'index.md', filepath)
         context = cf.get_context(CONFIG)
         assert context['page_content'] == PageContent(title='Blog Post One',
-                                                      html_content='<p>This is the content of the post.</p>',
                                                       description='',
                                                       canonical_url='http://bb.com/',
                                                       date=datetime(2021, 2, 28, 15, 30))

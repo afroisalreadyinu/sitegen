@@ -4,8 +4,10 @@ from types import SimpleNamespace as Bunch
 import tempfile
 from datetime import datetime, timedelta
 
-from sitegen.content import Section
+from sitegen.content import Section, PageContent, SiteInfo
 from common import FakeTemplate, FakeTemplates, CollectionTestBase
+
+CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
 
 class SectionTests(unittest.TestCase, CollectionTestBase):
 
@@ -17,16 +19,19 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
 
     def test_get_context(self):
         section = Section('blog')
-        section.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
+        high_date = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=1)
+        section.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry', date=high_date))
         section.append_content_file(self.make_content_file('blog', 'other-entry', 'Other Entry'))
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
-        new_context = section.get_context(existing_context)
-        assert 'items' in new_context
-        assert len(new_context.pop('items')) == 2
-        assert new_context == {'section': 'blog',
-                               'baseurl': 'http://bb.com',
-                               'pageurl': 'http://bb.com/blog/',
-                               'title': 'The Blog'}
+        context = section.get_context(CONFIG)
+        assert 'items' in context
+        assert len(context.pop('items')) == 2
+        assert context['page_content'] == PageContent(title='blog',
+                                                      description='',
+                                                      canonical_url='http://bb.com/blog/',
+                                                      date=high_date)
+        assert context['site_info'] == SiteInfo(site_name='HELLO',
+                                                base_url='http://bb.com',
+                                                section='blog')
 
     def test_date_sorting(self):
         section = Section('blog')
@@ -35,8 +40,7 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
                                                            date=datetime.now() - timedelta(hours=1)))
         section.append_content_file(self.make_content_file('blog', 'bottom-content', 'The Entry',
                                                            date=datetime.now() - timedelta(hours=2)))
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
-        context = section.get_context(existing_context)
+        context = section.get_context(CONFIG)
         items = context['items']
         assert len(items) == 3
         assert items[0].name == 'top-content'
@@ -47,8 +51,7 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         section.append_content_file(self.make_content_file('blog', 'other-content', 'The Entry', draft=False))
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
-        context = section.get_context(existing_context)
+        context = section.get_context(CONFIG)
         assert len(context['items']) == 1
         assert context['items'][0].name == 'other-content'
 
@@ -56,6 +59,5 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
         templates = FakeTemplates([FakeTemplate('list.html')])
-        rendered = section.render({'title': 'The Blog', 'baseurl': 'http://bb.com'},
-                                  templates, self.workdir.name)
+        rendered = section.render(CONFIG, templates, self.workdir.name)
         assert os.path.exists(os.path.join(self.workdir.name, 'blog/index.html'))
