@@ -1,5 +1,6 @@
 import os
 import unittest
+from unittest import mock
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -7,7 +8,7 @@ from pathlib import Path
 from markupsafe import Markup
 from markdown import markdown
 
-from sitegen.content import ContentFile, Section
+from sitegen.content import ContentFile, Section, PageContent, SiteInfo
 from common import FakeTemplate, FakeTemplates
 
 MD_CONTENT = """title: Blog Post One
@@ -17,6 +18,8 @@ tags: programming, software development, bash-works?
 
 This is the content of the post.
 """
+
+CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
 
 class ContentFileTests(unittest.TestCase):
 
@@ -87,42 +90,60 @@ The content is this"""))
         path.write_text(contents)
         return path
 
-    def test_context(self):
+    def test_description(self):
+        filepath = str(self.make_content_file('content.md', """description: The index page is full of content
+
+The content is this"""))
+        cf = ContentFile('blog', 'content.md', filepath)
+        assert cf.description == "The index page is full of content"
+
+    def test_description_no_description(self):
+        filepath = str(self.make_content_file('content.md', "This is the content"))
+        cf = ContentFile('blog', 'content.md', filepath)
+        assert cf.description == ""
+
+
+    @mock.patch('sitegen.content.datetime')
+    def test_context_no_date(self, mock_datetime):
+        mock_datetime.now.return_value = sentinel = object()
         filepath = str(self.make_content_file('content.md', "The content is this"))
         cf = ContentFile('blog', 'content.md', filepath)
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
-        new_context = cf.get_context(existing_context)
-        assert new_context is not existing_context
-        assert new_context.pop('item') is cf
-        assert new_context == {'title': 'The Blog',
-                               'section': 'blog',
-                               'baseurl': 'http://bb.com',
-                               'pageurl': 'http://bb.com/blog/content'}
+        context = cf.get_context(CONFIG)
+        assert context['page_content'] == PageContent(title='',
+                                                      html_content='<p>The content is this</p>',
+                                                      description='',
+                                                      canonical_url='http://bb.com/blog/content',
+                                                      date=sentinel)
+        assert context['site_info'] == SiteInfo(site_name='HELLO', base_url='http://bb.com', section='blog')
 
     def test_context_empty_section(self):
-        filepath = str(self.make_content_file('content.md', "The content is this"))
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
+        filepath = str(self.make_content_file('content.md', MD_CONTENT))
         cf = ContentFile('', 'content.md', filepath)
-        new_context = cf.get_context(existing_context)
-        assert new_context is not existing_context
-        assert new_context.pop('item') is cf
-        assert new_context == {'title': 'The Blog',
-                               'section': '',
-                               'baseurl': 'http://bb.com',
-                               'pageurl': 'http://bb.com/content'}
+        context = cf.get_context(CONFIG)
+        assert context['page_content'] == PageContent(title='Blog Post One',
+                                                      html_content='<p>This is the content of the post.</p>',
+                                                      description='',
+                                                      canonical_url='http://bb.com/content',
+                                                      date=datetime(2021, 2, 28, 15, 30))
+        assert context['site_info'] == SiteInfo(site_name='HELLO', base_url='http://bb.com', section='')
 
 
     def test_context_index_page(self):
-        filepath = str(self.make_content_file('index.md', "The content is this"))
-        existing_context = {'title': 'The Blog', 'baseurl': 'http://bb.com'}
+        filepath = str(self.make_content_file('index.md', MD_CONTENT))
         cf = ContentFile('', 'index.md', filepath)
-        new_context = cf.get_context(existing_context)
-        assert new_context is not existing_context
-        assert new_context.pop('item') is cf
-        assert new_context == {'title': 'The Blog',
-                               'section': '',
-                               'baseurl': 'http://bb.com',
-                               'pageurl': 'http://bb.com/'}
+        context = cf.get_context(CONFIG)
+        assert context['page_content'] == PageContent(title='Blog Post One',
+                                                      html_content='<p>This is the content of the post.</p>',
+                                                      description='',
+                                                      canonical_url='http://bb.com/',
+                                                      date=datetime(2021, 2, 28, 15, 30))
+        assert context['site_info'] == SiteInfo(site_name='HELLO', base_url='http://bb.com', section='')
+
+    def test_context_item(self):
+        filepath = str(self.make_content_file('index.md', MD_CONTENT))
+        cf = ContentFile('', 'index.md', filepath)
+        context = cf.get_context(CONFIG)
+        assert context['item'] is cf
 
     def test_web_path(self):
         cf = ContentFile('blog', 'the-entry.md', '/tmp/the-entry.md')
@@ -169,7 +190,7 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         templates = FakeTemplates([FakeTemplate('blog/single.html')])
         public_dir = Path(self.workdir.name) /  'public'
-        cf.render({'key': 'value', 'baseurl': 'http://bb.com'}, templates, str(public_dir))
+        cf.render(CONFIG, templates, str(public_dir))
         assert os.path.exists(os.path.join(public_dir, 'blog/the-entry/index.html'))
 
 
@@ -180,7 +201,7 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         templates = FakeTemplates([FakeTemplate('blog/single.html')])
         public_dir = Path(self.workdir.name) /  'public'
-        cf.render({'key': 'value'}, templates, str(public_dir))
+        cf.render(CONFIG, templates, str(public_dir))
         index_path = public_dir / "blog" / "the-entry" / "index.html"
         assert not index_path.exists()
 
@@ -193,7 +214,7 @@ The content is this"""))
         cf = ContentFile('blog', 'the-entry.md', filepath)
         templates = FakeTemplates([FakeTemplate('blog/single.html')])
         public_dir = Path(self.workdir.name) /  'public'
-        cf.render({'key': 'value', 'baseurl': 'http://bb.com'}, templates, str(public_dir))
+        cf.render(CONFIG, templates, str(public_dir))
         index_path = public_dir / "blog" / "the-entry" / "index.html"
         assert not index_path.exists()
         file_path = public_dir / "blog" / "the-entry.html"

@@ -4,6 +4,7 @@ import glob
 from dataclasses import dataclass, field
 from typing import Dict
 from datetime import datetime
+from dataclasses import dataclass
 
 from furl import furl
 from jinja2 import Environment, FileSystemLoader, select_autoescape, Markup
@@ -13,13 +14,28 @@ from markupsafe import Markup
 from markdown import Markdown
 from dateutil.parser import parse as dateparse
 
+@dataclass
+class PageContent:
+    title: str
+    html_content: str
+    description: str
+    canonical_url: str
+    date: datetime
+
+@dataclass
+class SiteInfo:
+    site_name: str
+    base_url: str
+    section: str
+
+
 class RenderMixin:
 
     def get_filename(self):
         return "index.html"
 
-    def render(self, context: Dict, templates, public_dir: str):
-        context = self.get_context(context)
+    def render(self, config: Dict, templates, public_dir: str):
+        context = self.get_context(config)
         template = self.get_template(templates)
         directory = self.get_output_directory(public_dir)
         os.makedirs(directory, exist_ok=True)
@@ -46,7 +62,7 @@ class Section(RenderMixin):
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
         context['items'] = sort_by_date(self.content_files)
-        context['section'] = self.name
+        context['item'] = self
         context['pageurl'] = furl(existing_context['baseurl']).set(path=f"/{self.name}/").url
         return context
 
@@ -76,6 +92,7 @@ class TagCollection(RenderMixin):
 
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
+        context['item'] = self
         context['items'] = sorted(self.content_tags.values(), key=lambda x: x.tag)
         context['pageurl'] = furl(existing_context['baseurl']).set(path="/tag/").url
         return context
@@ -115,6 +132,7 @@ class ContentTag(RenderMixin):
 
     def get_context(self, existing_context):
         context = copy.copy(existing_context)
+        context['item'] = self
         context['items'] = sort_by_date(self.content_files)
         context['tag'] = self.tag
         context['pageurl'] = furl(existing_context['baseurl']).set(path=self.web_path).url
@@ -218,6 +236,8 @@ class ContentFile(RenderMixin):
         _ = self.html_content
         self._metadata = {key: (value[0] if isinstance(value, list) else value)
                           for (key, value) in self._markdown.Meta.items()}
+        if 'title' not in self._metadata:
+            self._metadata['title'] = ''
         if 'date' in self._metadata:
             self._metadata['date'] = dateparse(self._metadata['date'])
         if 'draft' in self._metadata:
@@ -250,11 +270,22 @@ class ContentFile(RenderMixin):
     def tags(self):
         return [x.strip() for x in self.properties.get('tags', '').split(',') if x.strip()]
 
-    def get_context(self, existing_context):
-        context = copy.copy(existing_context)
+    @property
+    def description(self):
+        return self.properties.get('description', '')
+
+    def get_context(self, site_config):
+        context = {}
+        context['page_content'] = PageContent(
+            title=self.properties['title'],
+            html_content=self.html_content,
+            description=self.description,
+            canonical_url=furl(site_config['site']['url']).set(path=self.web_path).url,
+            date=self.publish_date)
+        context['site_info'] = SiteInfo(site_name=site_config['site']['title'],
+                                        base_url=site_config['site']['url'],
+                                        section=self.section)
         context['item'] = self
-        context['section'] = self.section
-        context['pageurl'] = furl(existing_context['baseurl']).set(path=self.web_path).url
         return context
 
     def get_template(self, templates):
