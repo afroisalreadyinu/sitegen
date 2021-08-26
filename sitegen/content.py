@@ -82,6 +82,7 @@ class Section(RenderMixin):
         # public/$section/index.html
         return os.path.join(public_dir, self.name)
 
+
 class TagCollection(RenderMixin):
 
     def __init__(self):
@@ -95,11 +96,21 @@ class TagCollection(RenderMixin):
                 self.content_tags[tag] = ct
             ct.append_content_file(content_file)
 
-    def get_context(self, existing_context):
-        context = copy.copy(existing_context)
-        context['item'] = self
-        context['items'] = sorted(self.content_tags.values(), key=lambda x: x.tag)
-        context['pageurl'] = furl(existing_context['baseurl']).set(path="/tag/").url
+    @property
+    def items(self):
+        return sorted(self.content_tags.values(), key=lambda x: x.tag)
+
+    def get_context(self, site_config):
+        context = {}
+        context['items'] = self.items
+        url = furl(site_config['site']['url']).set(path="/tag/").url
+        context['page_content'] = PageContent(title='Tags',
+                                              description='',
+                                              canonical_url=url,
+                                              date=max(x.publish_date for x in self.items))
+        context['site_info'] = SiteInfo(site_name=site_config['site']['title'],
+                                        base_url=site_config['site']['url'],
+                                        section='tag')
         return context
 
     def get_template(self, templates):
@@ -135,12 +146,30 @@ class ContentTag(RenderMixin):
     def web_path(self):
         return f"/tag/{self.tag}"
 
-    def get_context(self, existing_context):
-        context = copy.copy(existing_context)
-        context['item'] = self
+    @property
+    def publish_date(self):
+        items = sort_by_date(self.content_files)
+        if not items:
+            # This can only happen if the content is only draft, in that case
+            # pick the youngest draft
+            date = max(x.publish_date for x in self.content_files)
+        else:
+            date = max(x.publish_date for x in items)
+        return date
+
+    def get_context(self, config):
+        context = {}
         context['items'] = sort_by_date(self.content_files)
         context['tag'] = self.tag
-        context['pageurl'] = furl(existing_context['baseurl']).set(path=self.web_path).url
+        url = furl(config['site']['url']).set(path=self.web_path).url
+        context['page_content'] = PageContent(title=self.tag,
+                                              description='',
+                                              canonical_url=url,
+                                              date=self.publish_date)
+        context['site_info'] = SiteInfo(site_name=config['site']['title'],
+                                        base_url=config['site']['url'],
+                                        section='tag')
+        return context
         return context
 
     def get_template(self, templates):

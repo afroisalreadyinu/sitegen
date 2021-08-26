@@ -5,6 +5,8 @@ from pathlib import Path
 
 from sitegen import content
 
+CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
+
 def make_dirs_and_files(basedir, structure):
     for key, value in structure.items():
         if isinstance(value, str):
@@ -30,7 +32,7 @@ class RenderTests(unittest.TestCase):
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
+        content.generate_site(str(base), CONFIG)
 
         index = base / "public"/ "index.html"
         assert index.exists()
@@ -46,7 +48,7 @@ class RenderTests(unittest.TestCase):
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
+        content.generate_site(str(base), CONFIG)
 
         section_index = base / "public" / "blog" / "index.html"
         assert section_index.exists()
@@ -71,7 +73,7 @@ This is post1
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
-        content.generate_site(str(base), {'title': 'Test', 'baseurl': 'http://bb.com'})
+        content.generate_site(str(base), CONFIG)
 
         tag_index = base / "public" / "tag" /  "index.html"
         assert tag_index.exists()

@@ -45,16 +45,15 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
             assert tag in context.tag_collection.content_tags
 
     def test_load_directory(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            basedir = Path(tmpdirname) / "content"
-            basedir.mkdir()
-            (basedir / 'index.md').write_text("Hello")
-            (basedir / 'index.rst').write_text("Skip this")
-            blog_dir = basedir / 'blog'
-            blog_dir.mkdir()
-            (blog_dir / 'blog-entry.md').write_text('Yolo')
-            (blog_dir / '.#other-entry.md').write_text('Skip this')
-            context = ContentContext.load_directory(tmpdirname)
+        basedir = Path(self.workdir.name) / "content"
+        basedir.mkdir()
+        (basedir / 'index.md').write_text("Hello")
+        (basedir / 'index.rst').write_text("Skip this")
+        blog_dir = basedir / 'blog'
+        blog_dir.mkdir()
+        (blog_dir / 'blog-entry.md').write_text('Yolo')
+        (blog_dir / '.#other-entry.md').write_text('Skip this')
+        context = ContentContext.load_directory(self.workdir.name)
         assert len(context.content_files) == 2
         assert sorted(x.name for x in context.content_files) == ['blog-entry.md', 'index.md']
 
@@ -62,11 +61,11 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
     def test_render_sections(self):
         context = ContentContext()
         templates = FakeTemplates([FakeTemplate('list.html')])
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            the_entry = Path(tmpdirname) / 'the-entry.md'
-            the_entry.write_text("Hello")
-            context.add_content_file(ContentFile('blog', 'the-entry', str(the_entry)))
-            other_entry = Path(tmpdirname) / 'other-entry.md'
-            other_entry.write_text("Hello")
-            context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
-            context.render_sections({'title': 'Test', 'baseurl': 'http://bb.com'}, templates, tmpdirname)
+        the_entry = Path(self.workdir.name) / 'the-entry.md'
+        the_entry.write_text("Hello")
+        context.add_content_file(ContentFile('blog', 'the-entry', str(the_entry)))
+        other_entry = Path(self.workdir.name) / 'other-entry.md'
+        other_entry.write_text("Hello")
+        context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
+        context.render_sections({'site': {'url': 'http://bb.com', 'title': 'HELLO'}},
+                                templates, self.workdir.name)
