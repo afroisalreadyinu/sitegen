@@ -41,10 +41,10 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
-- [x] Tag pages
-- [ ] Base URL context field
 - [ ] RSS feed
 - [ ] Paging
 - [ ] Search
+- [x] Tag pages
+- [x] Base URL context field
 - [x] Code highlighting
 - [x] Flat page

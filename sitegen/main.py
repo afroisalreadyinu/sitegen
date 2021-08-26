@@ -10,6 +10,7 @@ def main():
 @main.command()
 def generate():
     config = toml.load("site.toml")
+    from sitegen.content import generate_site
     generate_site(os.getcwd(), config)
 
 @main.command()
