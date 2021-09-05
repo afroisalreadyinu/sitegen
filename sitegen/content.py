@@ -124,12 +124,12 @@ class TagCollection(RenderMixin):
         # public/tag/
         return os.path.join(public_dir, "tag")
 
-    def render(self, context, templates, public_dir):
+    def render(self, config, templates, public_dir):
         if not self.content_tags:
             return
         for ct in self.content_tags.values():
-            ct.render(context, templates, public_dir)
-        super().render(context, templates, public_dir)
+            ct.render(config, templates, public_dir)
+        super().render(config, templates, public_dir)
 
 
 class ContentTag(RenderMixin):
@@ -206,18 +206,18 @@ class ContentContext:
             self.sections[section_name] = section
         section.append_content_file(content_file)
 
-    def render_contents(self, context, templates, public_dir):
+    def render_contents(self, config, templates, public_dir):
         for content in self.content_files:
-            content.render(context, templates, public_dir)
+            content.render(config, templates, public_dir)
 
-    def render_sections(self, context, templates, public_dir):
+    def render_sections(self, config, templates, public_dir):
         for section in self.sections.values():
-            section.render(context, templates, public_dir)
+            section.render(config, templates, public_dir)
 
-    def render(self, context, templates, public_dir):
-        self.render_contents(context, templates, public_dir)
-        self.render_sections(context, templates, public_dir)
-        self.tag_collection.render(context, templates, public_dir)
+    def render(self, config, templates, public_dir):
+        self.render_contents(config, templates, public_dir)
+        self.render_sections(config, templates, public_dir)
+        self.tag_collection.render(config, templates, public_dir)
 
     @classmethod
     def load_directory(cls, basedir: str):
@@ -368,7 +368,7 @@ def to_date(dt):
     """Format a datetime as only date"""
     return dt.strftime('%d.%m.%Y')
 
-def generate_site(basedir, context):
+def generate_site(basedir, config):
     content_context = ContentContext.load_directory(basedir)
     env = Environment(
         loader=FileSystemLoader(os.path.join(basedir, "templates")),
@@ -377,4 +377,4 @@ def generate_site(basedir, context):
     env.filters['to_date'] = to_date
     target = os.path.join(basedir, 'public')
     os.makedirs(target, exist_ok=True)
-    content_context.render(context, env, target)
+    content_context.render(config, env, target)
