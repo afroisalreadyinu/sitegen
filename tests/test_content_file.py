@@ -12,7 +12,7 @@ from sitegen.content import ContentFile, Section, PageContent, SiteInfo
 from common import FakeTemplate, FakeTemplates
 
 MD_CONTENT = """title: Blog Post One
-date: 28.02.2021 15:30
+date: 09.02.2021 15:30
 draft: false
 tags: programming, software development, bash-works?
 
@@ -122,7 +122,7 @@ The content is this"""))
         assert context['page_content'] == PageContent(title='Blog Post One',
                                                       description='',
                                                       canonical_url='http://bb.com/content',
-                                                      date=datetime(2021, 2, 28, 15, 30))
+                                                      date=datetime(2021, 2, 9, 15, 30))
         assert context['site_info'] == SiteInfo(site_name='HELLO', base_url='http://bb.com', section='')
 
 
@@ -133,7 +133,7 @@ The content is this"""))
         assert context['page_content'] == PageContent(title='Blog Post One',
                                                       description='',
                                                       canonical_url='http://bb.com/',
-                                                      date=datetime(2021, 2, 28, 15, 30))
+                                                      date=datetime(2021, 2, 9, 15, 30))
         assert context['site_info'] == SiteInfo(site_name='HELLO', base_url='http://bb.com', section='')
 
     def test_context_item(self):
@@ -157,13 +157,13 @@ The content is this"""))
         assert properties == {
             'title': 'Blog Post One',
             'draft': False,
-            'date': datetime(2021, 2, 28, 15, 30),
+            'date': datetime(2021, 2, 9, 15, 30),
             'tags': 'programming, software development, bash-works?'}
 
     def test_publish_date(self):
         filepath = str(self.make_content_file('content.md', MD_CONTENT))
         cf = ContentFile('blog', 'the-entry.md', filepath)
-        assert cf.publish_date == datetime(2021, 2, 28, 15, 30)
+        assert cf.publish_date == datetime(2021, 2, 9, 15, 30)
 
     def test_publish_date_missing(self):
         content = "\n".join(line for line in MD_CONTENT.split("\n") if not line.startswith("date"))

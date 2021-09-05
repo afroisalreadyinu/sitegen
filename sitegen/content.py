@@ -12,7 +12,6 @@ from jinja2.exceptions import TemplateNotFound
 
 from markupsafe import Markup
 from markdown import Markdown
-from dateutil.parser import parse as dateparse
 
 @dataclass
 class PageContent:
@@ -41,6 +40,9 @@ class RenderMixin:
         filepath = os.path.join(directory, self.get_filename())
         with open(filepath, "w") as target_file:
             target_file.write(template.render(**context))
+
+def dateparse(datestr):
+    return datetime.strptime(datestr, "%d.%m.%Y %H:%M")
 
 def sort_by_date(content_files):
     return sorted((x for x in content_files if not x.is_draft),
