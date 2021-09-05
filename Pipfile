@@ -9,14 +9,15 @@ sitegen = {editable = true, path = "."}
 toml = "*"
 markupsafe = "*"
 markdown = "*"
-python-dateutil = "*"
 click = "*"
 watchdog = "*"
 pygments = "*"
 furl = "*"
+rfeed = "*"
 
 [dev-packages]
 pytest = "*"
+feedparser = "*"
 
 [requires]
 python_version = "3.9"
