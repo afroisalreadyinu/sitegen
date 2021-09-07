@@ -28,6 +28,8 @@ class SiteInfo:
     base_url: str
     section: str
 
+class SitegenRenderError(Exception):
+    pass
 
 class RenderMixin:
 
@@ -280,7 +282,11 @@ class ContentFile(RenderMixin):
         if 'title' not in self._metadata:
             self._metadata['title'] = ''
         if 'date' in self._metadata:
-            self._metadata['date'] = dateparse(self._metadata['date'])
+            try:
+                self._metadata['date'] = dateparse(self._metadata['date'])
+            except ValueError:
+                msg = f"Error parsing content file {self.abspath}, invalid date format: {self._metadata['date']}"
+                raise SitegenRenderError(msg) from None
         if 'draft' in self._metadata:
             value = self._metadata['draft']
             assert value in ['true', 'false']
