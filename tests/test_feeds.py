@@ -45,6 +45,15 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         assert parsed.entries[1].title == 'The Tutorial'
         assert parsed.entries[2].title == 'The Litany'
 
+    def test_skip_index(self):
+        fg = FeedGenerator()
+        now = datetime.now().replace(second=0, microsecond=0)
+        fg.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
+        fg.append_content_file(self.make_content_file('', 'index', ''))
+        feed_xml = fg.generate_feed({'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T'}})
+        parsed = feedparser.parse(feed_xml)
+        assert len(parsed.entries) == 1
+        assert parsed.entries[0].title == 'The Entry'
 
     def test_render(self):
         fg = FeedGenerator()

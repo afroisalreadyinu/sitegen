@@ -22,6 +22,9 @@ class FeedGenerator:
     def generate_feed(self, config):
         items = []
         for cf in sorted(self.content_files, key=lambda x: x.publish_date, reverse=True):
+            # skip index page
+            if cf.web_path == "/":
+                continue
             url = furl(config['site']['url']) / cf.web_path
             item = rfeed.Item(title=cf.properties['title'],
                               link=url,

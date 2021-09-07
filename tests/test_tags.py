@@ -42,9 +42,9 @@ class ContentTagTests(unittest.TestCase, CollectionTestBase):
         context = ct.get_context(CONFIG)
         items = context['items']
         assert len(items) == 3
-        assert items[0].name == 'top-content'
-        assert items[1].name == 'middle-content'
-        assert items[2].name == 'bottom-content'
+        assert items[0].name == 'top-content.md'
+        assert items[1].name == 'middle-content.md'
+        assert items[2].name == 'bottom-content.md'
 
     def test_skip_draft(self):
         ct = ContentTag('blog')
@@ -52,7 +52,7 @@ class ContentTagTests(unittest.TestCase, CollectionTestBase):
         ct.append_content_file(self.make_content_file('blog', 'other-content', 'The Entry', draft=False))
         context = ct.get_context(CONFIG)
         assert len(context['items']) == 1
-        assert context['items'][0].name == 'other-content'
+        assert context['items'][0].name == 'other-content.md'
 
     def test_render_only_draft(self):
         ct = ContentTag('tech')

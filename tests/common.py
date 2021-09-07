@@ -28,7 +28,8 @@ class FakeTemplates:
 class CollectionTestBase:
 
     def make_content_file(self, section, name, title, tags=None, draft=False, date=None):
-        content_file = Path(self.workdir.name) / f"{name}.md"
+        filename = f"{name}.md"
+        content_file = Path(self.workdir.name) / filename
         is_draft = str(draft).lower()
         tags_line = f'tags: {", ".join(tags)}\n' if tags else ''
         date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ''
@@ -37,4 +38,4 @@ draft: {is_draft}
 {date}{tags_line}
 The content
 """)
-        return ContentFile(section, name, str(content_file))
+        return ContentFile(section, filename, str(content_file))

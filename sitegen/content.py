@@ -10,6 +10,8 @@ from furl import furl
 from jinja2 import Environment, FileSystemLoader, select_autoescape, Markup
 from jinja2.exceptions import TemplateNotFound
 
+from sitegen.feeds import FeedGenerator
+
 from markupsafe import Markup
 from markdown import Markdown
 

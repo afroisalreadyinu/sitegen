@@ -3,9 +3,11 @@ import tempfile
 import shutil
 from pathlib import Path
 
+import feedparser
+
 from sitegen import content
 
-CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
+CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO', 'author': 'Sid Vicious'}}
 
 def make_dirs_and_files(basedir, structure):
     for key, value in structure.items():
@@ -82,3 +84,22 @@ This is post1
         tech_index = base / "public" / "tag" / "tech" / "index.html"
         assert tech_index.exists()
         assert tech_index.read_text() == "Tag: tech Link: /blog/post1"
+
+    def test_render_feed(self):
+        contents = {"content": {"index.md": "This is content",
+                                "blog": {"post1.md": "This is post1"},
+                                "tutorial": {"topic1.md": "This is topic 1"},
+                                "review": {"review1.md": "This is review 1"}},
+                    "templates": {"index.html": """{{ item.html_content }}""",
+                                  "single.html": """{{ item.html_content }}""",
+                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}"""}}
+        base = Path(self.workdir.name)
+        make_dirs_and_files(base, contents)
+
+        content.generate_site(str(base), CONFIG)
+
+        rss_file = base / "public" / "rss.xml"
+        assert rss_file.exists()
+        parsed = feedparser.parse(rss_file.read_text())
+        assert parsed.feed.title == "HELLO RSS Feed"
+        assert len(parsed.entries) == 3
