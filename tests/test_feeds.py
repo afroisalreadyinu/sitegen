@@ -9,6 +9,8 @@ from sitegen.feeds import FeedGenerator
 
 from common import FakeTemplates, FakeTemplate, CollectionTestBase
 
+CONFIG = {'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T', 'locale': 'en-US'}}
+
 class ContentContextTests(unittest.TestCase, CollectionTestBase):
 
     def setUp(self):
@@ -22,13 +24,26 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         fg.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
         fg.append_content_file(self.make_content_file('tutorial', 'the-tutorial', 'The Tutorial'))
         fg.append_content_file(self.make_content_file('litany', 'the-litany', 'The Litany'))
-        feed_xml = fg.generate_feed({'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T'}})
+        feed_xml = fg.generate_feed(CONFIG)
         parsed = feedparser.parse(feed_xml)
         assert parsed.feed.title == "Test Site RSS Feed"
+        assert parsed.feed.description == "RSS Feed for Test Site"
+        assert parsed.feed.link == "https://bb.com/rss.xml"
+        assert parsed.feed.language == "en-US"
         assert len(parsed.entries) == 3
         titles = set(x.title for x in parsed.entries)
         assert titles == set(['The Litany', 'The Tutorial', 'The Entry'])
 
+    def test_entry_details(self):
+        fg = FeedGenerator()
+        fg.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
+        feed_xml = fg.generate_feed(CONFIG)
+        parsed = feedparser.parse(feed_xml)
+        assert len(parsed.entries) == 1
+        entry = parsed.entries[0]
+        assert entry.title == 'The Entry'
+        assert entry.link == 'https://bb.com/blog/the-entry'
+        assert entry.author == 'U T'
 
     def test_order_by_date(self):
         fg = FeedGenerator()

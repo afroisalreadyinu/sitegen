@@ -33,10 +33,11 @@ class FeedGenerator:
                               guid=rfeed.Guid(url),
                               pubDate=cf.publish_date)
             items.append(item)
+        rss_url = furl(config['site']['url']) / 'rss.xml'
         feed = rfeed.Feed(title=f"{config['site']['title']} RSS Feed",
-                          link="http://www.example.com/rss",
-                          description="This is an example of how to use rfeed to generate an RSS 2.0 feed",
-                          language="en-US",
+                          link=rss_url,
+                          description=f"RSS Feed for {config['site']['title']}",
+                          language=config['site']['locale'],
                           lastBuildDate=datetime.datetime.now(),
                           items=items)
         return feed.rss()
