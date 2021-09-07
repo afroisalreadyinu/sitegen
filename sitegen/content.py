@@ -192,11 +192,13 @@ class ContentContext:
         self.content_files = []
         self.sections = {}
         self.tag_collection = TagCollection()
+        self.feed_generator = FeedGenerator()
 
     def add_content_file(self, content_file):
         self.content_files.append(content_file)
         self.add_to_section(content_file)
         self.tag_collection.append_content_file(content_file)
+        self.feed_generator.append_content_file(content_file)
 
     def add_to_section(self, content_file):
         section_name = content_file.section
@@ -220,6 +222,7 @@ class ContentContext:
         self.render_contents(config, templates, public_dir)
         self.render_sections(config, templates, public_dir)
         self.tag_collection.render(config, templates, public_dir)
+        self.feed_generator.render(config, public_dir)
 
     @classmethod
     def load_directory(cls, basedir: str):
