@@ -11,7 +11,7 @@ from common import FakeTemplates, FakeTemplate, CollectionTestBase
 
 CONFIG = {'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T', 'locale': 'en-US'}}
 
-class ContentContextTests(unittest.TestCase, CollectionTestBase):
+class FeedTests(unittest.TestCase, CollectionTestBase):
 
     def setUp(self):
         self.workdir = tempfile.TemporaryDirectory()
@@ -54,7 +54,7 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         fg.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry',
                                                       date=now + timedelta(hours=1)))
         fg.append_content_file(self.make_content_file('tutorial', 'the-tutorial', 'The Tutorial', date=now))
-        feed_xml = fg.generate_feed({'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T'}})
+        feed_xml = fg.generate_feed(CONFIG)
         parsed = feedparser.parse(feed_xml)
         assert parsed.entries[0].title == 'The Entry'
         assert parsed.entries[1].title == 'The Tutorial'
@@ -65,7 +65,7 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         now = datetime.now().replace(second=0, microsecond=0)
         fg.append_content_file(self.make_content_file('blog', 'the-entry', 'The Entry'))
         fg.append_content_file(self.make_content_file('', 'index', ''))
-        feed_xml = fg.generate_feed({'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T'}})
+        feed_xml = fg.generate_feed(CONFIG)
         parsed = feedparser.parse(feed_xml)
         assert len(parsed.entries) == 1
         assert parsed.entries[0].title == 'The Entry'
@@ -80,8 +80,7 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
                                                       date=now + timedelta(hours=1)))
         fg.append_content_file(self.make_content_file('tutorial', 'the-tutorial', 'The Tutorial', date=now))
         public_dir = Path(self.workdir.name) / 'public'
-        fg.render({'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T'}},
-                  str(public_dir))
+        fg.render(CONFIG, str(public_dir))
         with open(public_dir / 'rss.xml', 'r') as feed_file:
             feed_xml = feed_file.read()
         parsed = feedparser.parse(feed_xml)

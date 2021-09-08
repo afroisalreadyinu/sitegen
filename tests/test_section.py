@@ -47,14 +47,6 @@ class SectionTests(unittest.TestCase, CollectionTestBase):
         assert items[1].name == 'middle-content.md'
         assert items[2].name == 'bottom-content.md'
 
-    def test_skip_draft(self):
-        section = Section('blog')
-        section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))
-        section.append_content_file(self.make_content_file('blog', 'other-content', 'The Entry', draft=False))
-        context = section.get_context(CONFIG)
-        assert len(context['items']) == 1
-        assert context['items'][0].name == 'other-content.md'
-
     def test_render(self):
         section = Section('blog')
         section.append_content_file(self.make_content_file('blog', 'the-content', 'The Entry', draft=True))

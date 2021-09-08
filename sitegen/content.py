@@ -49,9 +49,7 @@ def dateparse(datestr):
     return datetime.strptime(datestr, "%d.%m.%Y %H:%M")
 
 def sort_by_date(content_files):
-    return sorted((x for x in content_files if not x.is_draft),
-                  key=lambda x: x.publish_date,
-                  reverse=True)
+    return sorted(content_files, key=lambda x: x.publish_date, reverse=True)
 
 class Section(RenderMixin):
 
@@ -154,14 +152,7 @@ class ContentTag(RenderMixin):
 
     @property
     def publish_date(self):
-        items = sort_by_date(self.content_files)
-        if not items:
-            # This can only happen if the content is only draft, in that case
-            # pick the youngest draft
-            date = max(x.publish_date for x in self.content_files)
-        else:
-            date = max(x.publish_date for x in items)
-        return date
+        return max(x.publish_date for x in self.content_files)
 
     def get_context(self, config):
         context = {}
@@ -199,6 +190,8 @@ class ContentContext:
         self.feed_generator = FeedGenerator()
 
     def add_content_file(self, content_file):
+        if content_file.is_draft:
+            return
         self.content_files.append(content_file)
         self.add_to_section(content_file)
         self.tag_collection.append_content_file(content_file)

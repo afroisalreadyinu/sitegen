@@ -6,6 +6,8 @@ from sitegen.content import ContentFile, ContentContext
 from common import FakeTemplates, FakeTemplate, CollectionTestBase
 
 class ContentContextTests(unittest.TestCase, CollectionTestBase):
+    """This class tests only the state of ContentContext. Render behavior is tested
+    by test_render.py"""
 
     def setUp(self):
         self.workdir = tempfile.TemporaryDirectory()
@@ -32,6 +34,7 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         assert len(section.content_files) == 2
 
     def test_skip_no_section(self):
+        """Do not add a content file without section to any sections"""
         content = self.make_content_file('', 'the-entry', 'The Entry')
         context = ContentContext()
         context.add_content_file(content)
@@ -57,15 +60,11 @@ class ContentContextTests(unittest.TestCase, CollectionTestBase):
         assert len(context.content_files) == 2
         assert sorted(x.name for x in context.content_files) == ['blog-entry.md', 'index.md']
 
-
-    def test_render_sections(self):
+    def test_skip_draft(self):
+        """If a content file is draft, just ignore it completely"""
         context = ContentContext()
-        templates = FakeTemplates([FakeTemplate('list.html')])
-        the_entry = Path(self.workdir.name) / 'the-entry.md'
-        the_entry.write_text("Hello")
-        context.add_content_file(ContentFile('blog', 'the-entry', str(the_entry)))
-        other_entry = Path(self.workdir.name) / 'other-entry.md'
-        other_entry.write_text("Hello")
-        context.add_content_file(ContentFile('reviews', 'other-entry', str(other_entry)))
-        context.render_sections({'site': {'url': 'http://bb.com', 'title': 'HELLO'}},
-                                templates, self.workdir.name)
+        context.add_content_file(self.make_content_file('blog', 'the-entry',
+                                                        'The Entry', tags=['one', 'two'], draft=True))
+        assert context.content_files == []
+        assert context.sections == {}
+        assert context.tag_collection.content_tags == {}

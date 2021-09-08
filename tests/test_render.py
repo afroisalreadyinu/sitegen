@@ -7,7 +7,7 @@ import feedparser
 
 from sitegen import content
 
-CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO', 'author': 'Sid Vicious'}}
+CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO', 'author': 'Sid Vicious', 'locale': 'en-US'}}
 
 def make_dirs_and_files(basedir, structure):
     for key, value in structure.items():
