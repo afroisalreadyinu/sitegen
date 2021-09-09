@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0e250b9927f638134410155f2b4481c9e424ec092360fdb2c173e8ac2bff85f3"
+            "sha256": "f78bfa1d4c761192e30c6862df768e13d5ad3baccdf6ea07f17bdffe10519588"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -23,6 +23,14 @@
             ],
             "index": "pypi",
             "version": "==8.0.1"
+        },
+        "contextlib2": {
+            "hashes": [
+                "sha256:3fbdb64466afd23abaf6c977627b75b6139a5a3e8ce38405c5b413aed7a0471f",
+                "sha256:ab1e2bfe1d01d968e1b7e8d9023bc51ef3509bba217bb730cee3827e1ee82869"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==21.6.0"
         },
         "furl": {
             "hashes": [
@@ -129,6 +137,14 @@
             ],
             "index": "pypi",
             "version": "==1.1.1"
+        },
+        "schema": {
+            "hashes": [
+                "sha256:cf97e4cd27e203ab6bb35968532de1ed8991bce542a646f0ff1d643629a4945d",
+                "sha256:fbb6a52eb2d9facf292f233adcc6008cffd94343c63ccac9a1cb1f3e6de1db17"
+            ],
+            "index": "pypi",
+            "version": "==0.7.4"
         },
         "sitegen": {
             "editable": true,
