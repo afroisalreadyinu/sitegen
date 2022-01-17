@@ -42,6 +42,7 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 ## Todos
 
 - [ ] RSS feed
+- [ ] Use pandoc to generate HTML from various formats
 - [ ] Paging
 - [ ] Search
 - [x] Tag pages
