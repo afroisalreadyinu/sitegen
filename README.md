@@ -41,6 +41,9 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
+- [ ] Skip also directory starting with `draft`
+- [ ] Replace pipenv with poetry
+- [ ] Do not generate if exists, make it configurable
 - [ ] RSS feed
 - [ ] Use pandoc to generate HTML from various formats
 - [ ] Paging
