@@ -1,13 +1,12 @@
-import unittest
 import tempfile
+import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import feedparser
+from common import CollectionTestBase, FakeTemplate, FakeTemplates
 
 from sitegen.feeds import FeedGenerator
-
-from common import FakeTemplates, FakeTemplate, CollectionTestBase
 
 CONFIG = {'site': {'title': 'Test Site', 'url': 'https://bb.com', 'author': 'U T', 'locale': 'en-US'}}
 

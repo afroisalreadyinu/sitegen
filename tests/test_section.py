@@ -1,11 +1,12 @@
 import os
-import unittest
-from types import SimpleNamespace as Bunch
 import tempfile
+import unittest
 from datetime import datetime, timedelta
+from types import SimpleNamespace as Bunch
 
-from sitegen.content import Section, PageContent, SiteInfo
-from common import FakeTemplate, FakeTemplates, CollectionTestBase
+from common import CollectionTestBase, FakeTemplate, FakeTemplates
+
+from sitegen.content import PageContent, Section, SiteInfo
 
 CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
 

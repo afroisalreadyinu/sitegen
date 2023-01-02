@@ -1,20 +1,19 @@
-import os
 import copy
 import glob
+import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
-from dataclasses import dataclass
 
 from furl import furl
-from jinja2 import Environment, FileSystemLoader, select_autoescape, Markup
+from jinja2 import Environment, FileSystemLoader, Markup, select_autoescape
 from jinja2.exceptions import TemplateNotFound
+from markdown import Markdown
+from markupsafe import Markup
 
 from sitegen.feeds import FeedGenerator
 
-from markupsafe import Markup
-from markdown import Markdown
 
 @dataclass
 class PageContent:

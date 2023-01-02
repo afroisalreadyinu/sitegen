@@ -19,6 +19,7 @@ schema = "*"
 [dev-packages]
 pytest = "*"
 feedparser = "*"
+isort = "*"
 
 [requires]
 python_version = "3.9"

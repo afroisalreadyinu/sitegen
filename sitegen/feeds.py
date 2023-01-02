@@ -1,8 +1,9 @@
-import os
 import datetime
+import os
 
 import rfeed
 from furl import furl
+
 
 class FeedGenerator:
 

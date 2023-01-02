@@ -5,6 +5,7 @@ import pytest
 
 from sitegen import main
 
+
 class ConfigSchemaTests(unittest.TestCase):
 
     @mock.patch('sitegen.main.toml')

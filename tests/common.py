@@ -1,9 +1,10 @@
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 from jinja2.exceptions import TemplateNotFound
 
 from sitegen.content import ContentFile
+
 
 class FakeTemplate:
     def __init__(self, path):

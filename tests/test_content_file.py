@@ -1,15 +1,15 @@
 import os
-import unittest
-from unittest import mock
 import tempfile
+import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
+from unittest import mock
 
-from markupsafe import Markup
-from markdown import markdown
-
-from sitegen.content import ContentFile, Section, PageContent, SiteInfo
 from common import FakeTemplate, FakeTemplates
+from markdown import markdown
+from markupsafe import Markup
+
+from sitegen.content import ContentFile, PageContent, Section, SiteInfo
 
 MD_CONTENT = """title: Blog Post One
 date: 09.02.2021 15:30

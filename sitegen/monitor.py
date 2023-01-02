@@ -1,11 +1,10 @@
-from http.server import SimpleHTTPRequestHandler
 import socketserver
-from pathlib import Path
 import traceback
+from http.server import SimpleHTTPRequestHandler
+from pathlib import Path
 
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-
+from watchdog.observers import Observer
 
 from sitegen.content import generate_site
 

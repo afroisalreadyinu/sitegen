@@ -1,9 +1,11 @@
-import unittest
 import tempfile
+import unittest
 from pathlib import Path
 
-from sitegen.content import ContentFile, ContentContext
-from common import FakeTemplates, FakeTemplate, CollectionTestBase
+from common import CollectionTestBase, FakeTemplate, FakeTemplates
+
+from sitegen.content import ContentContext, ContentFile
+
 
 class ContentContextTests(unittest.TestCase, CollectionTestBase):
     """This class tests only the state of ContentContext. Render behavior is tested

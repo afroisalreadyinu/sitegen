@@ -1,11 +1,11 @@
-import unittest
 import tempfile
-from pathlib import Path
+import unittest
 from datetime import datetime, timedelta
+from pathlib import Path
 
-from sitegen.content import ContentTag, TagCollection, PageContent, SiteInfo
+from common import CollectionTestBase, FakeTemplate, FakeTemplates
 
-from common import FakeTemplate, FakeTemplates, CollectionTestBase
+from sitegen.content import ContentTag, PageContent, SiteInfo, TagCollection
 
 CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO'}}
 

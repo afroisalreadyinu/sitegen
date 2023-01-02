@@ -1,8 +1,9 @@
 import os
 
-import toml
 import click
-from schema import Schema, And, SchemaError, Regex
+import toml
+from schema import And, Regex, Schema, SchemaError
+
 
 @click.group()
 def main():
