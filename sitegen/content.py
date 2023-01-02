@@ -2,6 +2,7 @@ import os
 import copy
 import glob
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict
 from datetime import datetime
 from dataclasses import dataclass
@@ -250,7 +251,7 @@ class ContentFile(RenderMixin):
     def __init__(self, section: str, name: str, abspath: str):
         self.section = section
         self.name = name
-        self.abspath = abspath
+        self.abspath = Path(abspath)
         self._html_content = None
         self._metadata = None
         self._markdown = None
@@ -259,8 +260,7 @@ class ContentFile(RenderMixin):
     def html_content(self):
         if self._html_content is not None:
             return self._html_content
-        with open(self.abspath, 'r') as md_content_file:
-            md_content = md_content_file.read()
+        md_content = self.abspath.read_text()
         self._markdown = Markdown(extensions=['smarty', 'meta', 'fenced_code', 'codehilite'])
         self._html_content = Markup(self._markdown.convert(md_content))
         return self._html_content
@@ -304,6 +304,8 @@ class ContentFile(RenderMixin):
 
     @property
     def is_draft(self):
+        if self.abspath.parts[-2] in ['drafts', 'draft']:
+            return True
         return self.properties.get('draft', False)
 
     @property

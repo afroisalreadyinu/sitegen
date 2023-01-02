@@ -85,8 +85,12 @@ The content is this"""))
         template = cf.get_template(templates)
         assert template.path == 'single.html'
 
-    def make_content_file(self, contentfile_name, contents):
-        path = Path(self.workdir.name) / contentfile_name
+    def make_content_file(self, contentfile_name, contents, dir_name=None):
+        content_dir = Path(self.workdir.name)
+        if dir_name:
+            content_dir = content_dir / dir_name
+        content_dir.mkdir(exist_ok=True)
+        path = content_dir / contentfile_name
         path.write_text(contents)
         return path
 
@@ -190,6 +194,22 @@ The content is this"""))
         cf.render(CONFIG, templates, str(public_dir))
         assert os.path.exists(os.path.join(public_dir, 'blog/the-entry/index.html'))
 
+    def test_is_draft_true(self):
+        filepath = str(self.make_content_file('content.md', """draft: true
+
+The content is this"""))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        assert cf.is_draft
+
+    def test_draft_directory(self):
+        filepath = str(self.make_content_file('content.md', """The content is this""", dir_name="draft"))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        assert cf.is_draft
+
+    def test_is_draft_missing_false(self):
+        filepath = str(self.make_content_file('content.md', "The content is this"))
+        cf = ContentFile('blog', 'the-entry.md', filepath)
+        assert not cf.is_draft
 
     def test_render_skip_draft(self):
         filepath = str(self.make_content_file('content.md', """draft: true
