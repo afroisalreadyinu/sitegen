@@ -7,7 +7,15 @@ import feedparser
 
 from sitegen import content
 
-CONFIG = {'site': {'url': 'http://bb.com', 'title': 'HELLO', 'author': 'Sid Vicious', 'locale': 'en-US'}}
+CONFIG = {
+    "site": {
+        "url": "http://bb.com",
+        "title": "HELLO",
+        "author": "Sid Vicious",
+        "locale": "en-US",
+    }
+}
+
 
 def make_dirs_and_files(basedir, structure):
     for key, value in structure.items():
@@ -21,7 +29,6 @@ def make_dirs_and_files(basedir, structure):
 
 
 class RenderTests(unittest.TestCase):
-
     def setUp(self):
         self.workdir = tempfile.TemporaryDirectory()
 
@@ -29,24 +36,33 @@ class RenderTests(unittest.TestCase):
         self.workdir.cleanup()
 
     def test_render_index(self):
-        contents = {"content": {"index.md": "This is content"},
-                    "templates": {"index.html": """<html><body>{{ item.html_content }}</body></html>"""}}
+        contents = {
+            "content": {"index.md": "This is content"},
+            "templates": {
+                "index.html": """<html><body>{{ item.html_content }}</body></html>"""
+            },
+        }
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
         content.generate_site(str(base), CONFIG)
 
-        index = base / "public"/ "index.html"
+        index = base / "public" / "index.html"
         assert index.exists()
         assert index.read_text() == "<html><body><p>This is content</p></body></html>"
 
-
     def test_render_section_page(self):
-        contents = {"content": {"index.md": "This is content",
-                                "blog": {"post1.md": "This is post1"}},
-                    "templates": {"index.html": """{{ item.html_content }}""",
-                                  "single.html": """{{ item.html_content }}""",
-                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}"""}}
+        contents = {
+            "content": {
+                "index.md": "This is content",
+                "blog": {"post1.md": "This is post1"},
+            },
+            "templates": {
+                "index.html": """{{ item.html_content }}""",
+                "single.html": """{{ item.html_content }}""",
+                "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}""",
+            },
+        }
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
@@ -60,24 +76,31 @@ class RenderTests(unittest.TestCase):
         assert post_page.exists()
         assert post_page.read_text() == "<p>This is post1</p>"
 
-
     def test_render_tags_pages(self):
-        contents = {"content": {"index.md": "This is content",
-                                "blog": {"post1.md": """tags: tech, sw development
+        contents = {
+            "content": {
+                "index.md": "This is content",
+                "blog": {
+                    "post1.md": """tags: tech, sw development
 
 This is post1
-"""}},
-                    "templates": {"index.html": """{{ item.html_content }}""",
-                                  "single.html": """{{ item.html_content }}""",
-                                  "list.html": """{% for item in items %}Link: {{ item.web_path }} {% endfor %}""",
-                                  "tag.html": """Tag: {{ tag }} {% for item in items %}Link: {{ item.web_path }}{% endfor %}
-"""}}
+"""
+                },
+            },
+            "templates": {
+                "index.html": """{{ item.html_content }}""",
+                "single.html": """{{ item.html_content }}""",
+                "list.html": """{% for item in items %}Link: {{ item.web_path }} {% endfor %}""",
+                "tag.html": """Tag: {{ tag }} {% for item in items %}Link: {{ item.web_path }}{% endfor %}
+""",
+            },
+        }
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 
         content.generate_site(str(base), CONFIG)
 
-        tag_index = base / "public" / "tag" /  "index.html"
+        tag_index = base / "public" / "tag" / "index.html"
         assert tag_index.exists()
         assert tag_index.read_text() == "Link: /tag/sw development Link: /tag/tech "
 
@@ -86,13 +109,19 @@ This is post1
         assert tech_index.read_text() == "Tag: tech Link: /blog/post1"
 
     def test_render_feed(self):
-        contents = {"content": {"index.md": "This is content",
-                                "blog": {"post1.md": "This is post1"},
-                                "tutorial": {"topic1.md": "This is topic 1"},
-                                "review": {"review1.md": "This is review 1"}},
-                    "templates": {"index.html": """{{ item.html_content }}""",
-                                  "single.html": """{{ item.html_content }}""",
-                                  "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}"""}}
+        contents = {
+            "content": {
+                "index.md": "This is content",
+                "blog": {"post1.md": "This is post1"},
+                "tutorial": {"topic1.md": "This is topic 1"},
+                "review": {"review1.md": "This is review 1"},
+            },
+            "templates": {
+                "index.html": """{{ item.html_content }}""",
+                "single.html": """{{ item.html_content }}""",
+                "list.html": """{% for item in items %}Link: {{ item.web_path }}{% endfor %}""",
+            },
+        }
         base = Path(self.workdir.name)
         make_dirs_and_files(base, contents)
 

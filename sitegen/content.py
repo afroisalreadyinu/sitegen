@@ -22,17 +22,19 @@ class PageContent:
     canonical_url: str
     date: datetime
 
+
 @dataclass
 class SiteInfo:
     site_name: str
     base_url: str
     section: str
 
+
 class SitegenRenderError(Exception):
     pass
 
-class RenderMixin:
 
+class RenderMixin:
     def get_filename(self):
         return "index.html"
 
@@ -45,14 +47,16 @@ class RenderMixin:
         with open(filepath, "w") as target_file:
             target_file.write(template.render(**context))
 
+
 def dateparse(datestr):
     return datetime.strptime(datestr, "%d.%m.%Y %H:%M")
+
 
 def sort_by_date(content_files):
     return sorted(content_files, key=lambda x: x.publish_date, reverse=True)
 
-class Section(RenderMixin):
 
+class Section(RenderMixin):
     def __init__(self, name):
         assert name
         self.name = name
@@ -64,15 +68,19 @@ class Section(RenderMixin):
 
     def get_context(self, config):
         context = {}
-        context['items'] = sort_by_date(self.content_files)
-        url = furl(config['site']['url']).set(path=f"/{self.name}/").url
-        context['page_content'] = PageContent(title=self.name,
-                                              description='',
-                                              canonical_url=url,
-                                              date=max(x.publish_date for x in self.content_files))
-        context['site_info'] = SiteInfo(site_name=config['site']['title'],
-                                        base_url=config['site']['url'],
-                                        section=self.name)
+        context["items"] = sort_by_date(self.content_files)
+        url = furl(config["site"]["url"]).set(path=f"/{self.name}/").url
+        context["page_content"] = PageContent(
+            title=self.name,
+            description="",
+            canonical_url=url,
+            date=max(x.publish_date for x in self.content_files),
+        )
+        context["site_info"] = SiteInfo(
+            site_name=config["site"]["title"],
+            base_url=config["site"]["url"],
+            section=self.name,
+        )
         return context
 
     def get_template(self, templates):
@@ -88,7 +96,6 @@ class Section(RenderMixin):
 
 
 class TagCollection(RenderMixin):
-
     def __init__(self):
         self.content_tags = {}
 
@@ -106,15 +113,19 @@ class TagCollection(RenderMixin):
 
     def get_context(self, site_config):
         context = {}
-        context['items'] = self.items
-        url = furl(site_config['site']['url']).set(path="/tag/").url
-        context['page_content'] = PageContent(title='Tags',
-                                              description='',
-                                              canonical_url=url,
-                                              date=max(x.publish_date for x in self.items))
-        context['site_info'] = SiteInfo(site_name=site_config['site']['title'],
-                                        base_url=site_config['site']['url'],
-                                        section='tag')
+        context["items"] = self.items
+        url = furl(site_config["site"]["url"]).set(path="/tag/").url
+        context["page_content"] = PageContent(
+            title="Tags",
+            description="",
+            canonical_url=url,
+            date=max(x.publish_date for x in self.items),
+        )
+        context["site_info"] = SiteInfo(
+            site_name=site_config["site"]["title"],
+            base_url=site_config["site"]["url"],
+            section="tag",
+        )
         return context
 
     def get_template(self, templates):
@@ -137,7 +148,6 @@ class TagCollection(RenderMixin):
 
 
 class ContentTag(RenderMixin):
-
     def __init__(self, tag):
         assert tag
         self.tag = tag
@@ -156,16 +166,17 @@ class ContentTag(RenderMixin):
 
     def get_context(self, config):
         context = {}
-        context['items'] = sort_by_date(self.content_files)
-        context['tag'] = self.tag
-        url = furl(config['site']['url']).set(path=self.web_path).url
-        context['page_content'] = PageContent(title=self.tag,
-                                              description='',
-                                              canonical_url=url,
-                                              date=self.publish_date)
-        context['site_info'] = SiteInfo(site_name=config['site']['title'],
-                                        base_url=config['site']['url'],
-                                        section='tag')
+        context["items"] = sort_by_date(self.content_files)
+        context["tag"] = self.tag
+        url = furl(config["site"]["url"]).set(path=self.web_path).url
+        context["page_content"] = PageContent(
+            title=self.tag, description="", canonical_url=url, date=self.publish_date
+        )
+        context["site_info"] = SiteInfo(
+            site_name=config["site"]["title"],
+            base_url=config["site"]["url"],
+            section="tag",
+        )
         return context
         return context
 
@@ -182,7 +193,6 @@ class ContentTag(RenderMixin):
 
 
 class ContentContext:
-
     def __init__(self):
         self.content_files = []
         self.sections = {}
@@ -227,18 +237,18 @@ class ContentContext:
         contentdir = os.path.join(basedir, "content")
         for root, dirs, files in os.walk(contentdir):
             for filename in files:
-                if not filename.endswith('.md'):
+                if not filename.endswith(".md"):
                     continue
-                if filename.startswith('.'):
+                if filename.startswith("."):
                     # dotfiles are used for all kinds of weird purposes,
                     # including as backup by e.g. Emacs
                     continue
                 path = os.path.join(root, filename)
-                filename = path[len(contentdir):].lstrip('/')
-                if '/' in filename:
-                    section, name = filename.split('/', 1)
+                filename = path[len(contentdir) :].lstrip("/")
+                if "/" in filename:
+                    section, name = filename.split("/", 1)
                 else:
-                    section = ''
+                    section = ""
                     name = filename
                 content_file = ContentFile(section=section, name=name, abspath=path)
                 content_context.add_content_file(content_file)
@@ -246,7 +256,6 @@ class ContentContext:
 
 
 class ContentFile(RenderMixin):
-
     def __init__(self, section: str, name: str, abspath: str):
         self.section = section
         self.name = name
@@ -260,7 +269,9 @@ class ContentFile(RenderMixin):
         if self._html_content is not None:
             return self._html_content
         md_content = self.abspath.read_text()
-        self._markdown = Markdown(extensions=['smarty', 'meta', 'fenced_code', 'codehilite'])
+        self._markdown = Markdown(
+            extensions=["smarty", "meta", "fenced_code", "codehilite"]
+        )
         self._html_content = Markup(self._markdown.convert(md_content))
         return self._html_content
 
@@ -269,33 +280,35 @@ class ContentFile(RenderMixin):
         if self._metadata is not None:
             return self._metadata
         _ = self.html_content
-        self._metadata = {key: (value[0] if isinstance(value, list) else value)
-                          for (key, value) in self._markdown.Meta.items()}
-        if 'title' not in self._metadata:
-            self._metadata['title'] = ''
-        if 'date' in self._metadata:
+        self._metadata = {
+            key: (value[0] if isinstance(value, list) else value)
+            for (key, value) in self._markdown.Meta.items()
+        }
+        if "title" not in self._metadata:
+            self._metadata["title"] = ""
+        if "date" in self._metadata:
             try:
-                self._metadata['date'] = dateparse(self._metadata['date'])
+                self._metadata["date"] = dateparse(self._metadata["date"])
             except ValueError:
                 msg = f"Error parsing content file {self.abspath}, invalid date format: {self._metadata['date']}"
                 raise SitegenRenderError(msg) from None
-        if 'draft' in self._metadata:
-            value = self._metadata['draft']
-            assert value in ['true', 'false']
-            self._metadata['draft'] = value == 'true'
+        if "draft" in self._metadata:
+            value = self._metadata["draft"]
+            assert value in ["true", "false"]
+            self._metadata["draft"] = value == "true"
         return self._metadata
 
     @property
     def publish_date(self):
-        return self.properties.get('date', datetime.now())
+        return self.properties.get("date", datetime.now())
 
     @property
     def slug(self):
-        return self.name[:-len(".md")]
+        return self.name[: -len(".md")]
 
     @property
     def web_path(self):
-        if self.name == 'index.md':
+        if self.name == "index.md":
             return "/"
         if not self.section:
             return f"/{self.slug}"
@@ -303,34 +316,39 @@ class ContentFile(RenderMixin):
 
     @property
     def is_draft(self):
-        if self.abspath.parts[-2] in ['drafts', 'draft']:
+        if self.abspath.parts[-2] in ["drafts", "draft"]:
             return True
-        return self.properties.get('draft', False)
+        return self.properties.get("draft", False)
 
     @property
     def tags(self):
-        return [x.strip() for x in self.properties.get('tags', '').split(',') if x.strip()]
+        return [
+            x.strip() for x in self.properties.get("tags", "").split(",") if x.strip()
+        ]
 
     @property
     def description(self):
-        return self.properties.get('description', '')
+        return self.properties.get("description", "")
 
     def get_context(self, site_config):
         context = {}
-        context['page_content'] = PageContent(
-            title=self.properties['title'],
+        context["page_content"] = PageContent(
+            title=self.properties["title"],
             description=self.description,
-            canonical_url=furl(site_config['site']['url']).set(path=self.web_path).url,
-            date=self.publish_date)
-        context['site_info'] = SiteInfo(site_name=site_config['site']['title'],
-                                        base_url=site_config['site']['url'],
-                                        section=self.section)
-        context['item'] = self
+            canonical_url=furl(site_config["site"]["url"]).set(path=self.web_path).url,
+            date=self.publish_date,
+        )
+        context["site_info"] = SiteInfo(
+            site_name=site_config["site"]["title"],
+            base_url=site_config["site"]["url"],
+            section=self.section,
+        )
+        context["item"] = self
         return context
 
     def get_template(self, templates):
         if not self.section:
-            if self.name == 'index.md':
+            if self.name == "index.md":
                 template = templates.get_template("index.html")
             else:
                 template = templates.get_template("single.html")
@@ -342,16 +360,16 @@ class ContentFile(RenderMixin):
         return template
 
     def get_filename(self):
-        flat = self.properties.get('flat', False)
+        flat = self.properties.get("flat", False)
         if flat:
-            return self.name[:-len(".md")] + ".html"
+            return self.name[: -len(".md")] + ".html"
         else:
             return "index.html"
 
     def get_output_directory(self, public_dir):
-        flat = self.properties.get('flat', False)
+        flat = self.properties.get("flat", False)
         if not self.section:
-            if self.name == 'index.md':
+            if self.name == "index.md":
                 return public_dir
             # public/$filename/index.html
             if flat:
@@ -363,7 +381,7 @@ class ContentFile(RenderMixin):
             return os.path.join(public_dir, self.section)
         else:
             # public/$section/$filename/
-            return os.path.join(public_dir, self.section, self.name[:-len(".md")])
+            return os.path.join(public_dir, self.section, self.name[: -len(".md")])
 
     def render(self, *args, **kwargs):
         if self.is_draft:
@@ -373,15 +391,15 @@ class ContentFile(RenderMixin):
 
 def to_date(dt):
     """Format a datetime as only date"""
-    return dt.strftime('%d.%m.%Y')
+    return dt.strftime("%d.%m.%Y")
+
 
 def generate_site(basedir, config):
     content_context = ContentContext.load_directory(basedir)
     env = Environment(
-        loader=FileSystemLoader(os.path.join(basedir, "templates")),
-        autoescape=True
+        loader=FileSystemLoader(os.path.join(basedir, "templates")), autoescape=True
     )
-    env.filters['to_date'] = to_date
-    target = os.path.join(basedir, 'public')
+    env.filters["to_date"] = to_date
+    target = os.path.join(basedir, "public")
     os.makedirs(target, exist_ok=True)
     content_context.render(config, env, target)

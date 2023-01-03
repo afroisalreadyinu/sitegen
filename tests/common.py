@@ -13,7 +13,8 @@ class FakeTemplate:
 
     def render(self, **context):
         self.render_context = context
-        return '{}: {}'.format(self.path, ''.join(str(x) for x in context.values()))
+        return "{}: {}".format(self.path, "".join(str(x) for x in context.values()))
+
 
 class FakeTemplates:
     def __init__(self, templates):
@@ -27,16 +28,19 @@ class FakeTemplates:
 
 
 class CollectionTestBase:
-
-    def make_content_file(self, section, name, title, tags=None, draft=False, date=None):
+    def make_content_file(
+        self, section, name, title, tags=None, draft=False, date=None
+    ):
         filename = f"{name}.md"
         content_file = Path(self.workdir.name) / filename
         is_draft = str(draft).lower()
-        tags_line = f'tags: {", ".join(tags)}\n' if tags else ''
-        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ''
-        content_file.write_text(f"""title: {title}
+        tags_line = f'tags: {", ".join(tags)}\n' if tags else ""
+        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ""
+        content_file.write_text(
+            f"""title: {title}
 draft: {is_draft}
 {date}{tags_line}
 The content
-""")
+"""
+        )
         return ContentFile(section, filename, str(content_file))
