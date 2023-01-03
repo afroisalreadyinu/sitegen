@@ -1,3 +1,6 @@
+"""
+Directory monitory functionality for sitegen
+"""
 import socketserver
 import traceback
 from http.server import SimpleHTTPRequestHandler
@@ -42,7 +45,7 @@ class EventHandler(FileSystemEventHandler):
         print(f"{dirname.capitalize()} directory changed, regenerating")
         try:
             generate_site(self.basedir, self.context)
-        except:
+        except:  # pylint: disable=bare-except
             print("Error generating site:")
             traceback.print_exc()
 
@@ -50,7 +53,6 @@ class EventHandler(FileSystemEventHandler):
 def monitor(basedir, context):
     basedirectory = Path(basedir)
     public = basedirectory / "public"
-    content = basedirectory / "content"
 
     observer = Observer()
     observer.schedule(EventHandler(basedir, context), basedirectory, recursive=True)

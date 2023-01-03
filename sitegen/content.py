@@ -1,16 +1,17 @@
-import copy
-import glob
+"""
+Content processing code for sitegen
+"""
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
+import chardet
 from furl import furl
-from jinja2 import Environment, FileSystemLoader, Markup, select_autoescape
+from jinja2 import Environment, FileSystemLoader, Markup
 from jinja2.exceptions import TemplateNotFound
 from markdown import Markdown
-from markupsafe import Markup
 
 from sitegen.feeds import FeedGenerator
 
@@ -44,7 +45,7 @@ class RenderMixin:
         directory = self.get_output_directory(public_dir)
         os.makedirs(directory, exist_ok=True)
         filepath = os.path.join(directory, self.get_filename())
-        with open(filepath, "w") as target_file:
+        with open(filepath, "w", encoding='utf-8') as target_file:
             target_file.write(template.render(**context))
 
 
@@ -101,11 +102,11 @@ class TagCollection(RenderMixin):
 
     def append_content_file(self, content_file):
         for tag in content_file.tags:
-            ct = self.content_tags.get(tag)
-            if not ct:
-                ct = ContentTag(tag)
-                self.content_tags[tag] = ct
-            ct.append_content_file(content_file)
+            content_tag = self.content_tags.get(tag)
+            if not content_tag:
+                content_tag = ContentTag(tag)
+                self.content_tags[tag] = content_tag
+            content_tag.append_content_file(content_file)
 
     @property
     def items(self):
@@ -142,8 +143,8 @@ class TagCollection(RenderMixin):
     def render(self, config, templates, public_dir):
         if not self.content_tags:
             return
-        for ct in self.content_tags.values():
-            ct.render(config, templates, public_dir)
+        for content_tag in self.content_tags.values():
+            content_tag.render(config, templates, public_dir)
         super().render(config, templates, public_dir)
 
 
@@ -177,7 +178,6 @@ class ContentTag(RenderMixin):
             base_url=config["site"]["url"],
             section="tag",
         )
-        return context
         return context
 
     def get_template(self, templates):
@@ -235,7 +235,7 @@ class ContentContext:
     def load_directory(cls, basedir: str):
         content_context = cls()
         contentdir = os.path.join(basedir, "content")
-        for root, dirs, files in os.walk(contentdir):
+        for root, _, files in os.walk(contentdir):
             for filename in files:
                 if not filename.endswith(".md"):
                     continue
@@ -268,7 +268,9 @@ class ContentFile(RenderMixin):
     def html_content(self):
         if self._html_content is not None:
             return self._html_content
-        md_content = self.abspath.read_text()
+        md_bytes = self.abspath.read_bytes()
+        encoding = chardet.detect(md_bytes)
+        md_content = md_bytes.decode(encoding['encoding'])
         self._markdown = Markdown(
             extensions=["smarty", "meta", "fenced_code", "codehilite"]
         )
@@ -290,7 +292,8 @@ class ContentFile(RenderMixin):
             try:
                 self._metadata["date"] = dateparse(self._metadata["date"])
             except ValueError:
-                msg = f"Error parsing content file {self.abspath}, invalid date format: {self._metadata['date']}"
+                msg = f"Error parsing content file {self.abspath}," \
+                    f"invalid date format: {self._metadata['date']}"
                 raise SitegenRenderError(msg) from None
         if "draft" in self._metadata:
             value = self._metadata["draft"]
@@ -363,8 +366,7 @@ class ContentFile(RenderMixin):
         flat = self.properties.get("flat", False)
         if flat:
             return self.name[: -len(".md")] + ".html"
-        else:
-            return "index.html"
+        return "index.html"
 
     def get_output_directory(self, public_dir):
         flat = self.properties.get("flat", False)
@@ -374,14 +376,12 @@ class ContentFile(RenderMixin):
             # public/$filename/index.html
             if flat:
                 return public_dir
-            else:
-                return os.path.join(public_dir, self.slug)
+            return os.path.join(public_dir, self.slug)
         if flat:
             # public/$section/
             return os.path.join(public_dir, self.section)
-        else:
-            # public/$section/$filename/
-            return os.path.join(public_dir, self.section, self.name[: -len(".md")])
+        # public/$section/$filename/
+        return os.path.join(public_dir, self.section, self.name[: -len(".md")])
 
     def render(self, *args, **kwargs):
         if self.is_draft:
@@ -389,9 +389,9 @@ class ContentFile(RenderMixin):
         super().render(*args, **kwargs)
 
 
-def to_date(dt):
+def to_date(dt_val):
     """Format a datetime as only date"""
-    return dt.strftime("%d.%m.%Y")
+    return dt_val.strftime("%d.%m.%Y")
 
 
 def generate_site(basedir, config):
