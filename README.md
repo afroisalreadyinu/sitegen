@@ -42,13 +42,13 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 ## Todos
 
 - [ ] Add typing with ty
-- [ ] Add ruff
 - [ ] Do not generate if exists, make it configurable
 - [ ] RSS feed
 - [ ] Use pandoc to generate HTML from various formats
 - [ ] Paging
 - [ ] Search
 
+- [x] Add ruff
 - [x] Tag pages
 - [x] Base URL context field
 - [x] Code highlighting
