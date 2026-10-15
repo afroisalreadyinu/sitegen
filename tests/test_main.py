@@ -7,7 +7,7 @@ from sitegen import main
 
 
 class ConfigSchemaTests(unittest.TestCase):
-    @mock.patch("sitegen.main.toml")
+    @mock.patch("sitegen.main.tomllib")
     def test_load_config(self, mock_toml):
         mock_toml.load.return_value = {
             "site": {
@@ -19,7 +19,7 @@ class ConfigSchemaTests(unittest.TestCase):
         }
         config = main.load_config()
 
-    @mock.patch("sitegen.main.toml")
+    @mock.patch("sitegen.main.tomllib")
     def test_load_config_missing_field(self, mock_toml):
         mock_toml.load.return_value = {
             "site": {"url": "http://bb.com", "author": "Sid Vicious", "locale": "en-US"}
@@ -28,7 +28,7 @@ class ConfigSchemaTests(unittest.TestCase):
             config = main.load_config()
         assert "Missing key: 'title'" in context.value.args[0]
 
-    @mock.patch("sitegen.main.toml")
+    @mock.patch("sitegen.main.tomllib")
     def test_load_config_invalid_url(self, mock_toml):
         mock_toml.load.return_value = {
             "site": {

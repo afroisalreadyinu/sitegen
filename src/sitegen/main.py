@@ -4,7 +4,7 @@ Console entry points of sitegen
 import os
 
 import click
-import toml
+import tomllib
 from schema import And, Regex, Schema, SchemaError
 
 from sitegen.content import generate_site
@@ -33,7 +33,7 @@ class SitegenConfigurationError(Exception):
 
 
 def load_config():
-    config = toml.load("site.toml")
+    config = tomllib.load("site.toml")
     try:
         validated = ConfigSchema.validate(config)
     except SchemaError as schema_error:
