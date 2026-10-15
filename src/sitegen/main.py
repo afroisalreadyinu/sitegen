@@ -1,10 +1,11 @@
 """
 Console entry points of sitegen
 """
+
 import os
+import tomllib
 
 import click
-import tomllib
 from schema import And, Regex, Schema, SchemaError
 
 from sitegen.content import generate_site

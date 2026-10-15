@@ -1,6 +1,7 @@
 """
 Directory monitory functionality for sitegen
 """
+
 import socketserver
 import traceback
 from http.server import SimpleHTTPRequestHandler

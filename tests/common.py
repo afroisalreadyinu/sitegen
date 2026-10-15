@@ -34,8 +34,8 @@ class CollectionTestBase:
         filename = f"{name}.md"
         content_file = Path(self.workdir.name) / filename
         is_draft = str(draft).lower()
-        tags_line = f'tags: {", ".join(tags)}\n' if tags else ""
-        date = f'date: {date.strftime("%d.%m.%Y %H:%M")}\n' if date else ""
+        tags_line = f"tags: {', '.join(tags)}\n" if tags else ""
+        date = f"date: {date.strftime('%d.%m.%Y %H:%M')}\n" if date else ""
         content_file.write_text(
             f"""title: {title}
 draft: {is_draft}

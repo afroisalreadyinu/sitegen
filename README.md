@@ -6,8 +6,9 @@ change, so that you can refer to the code instead of documentation,
 ## Installation
 
 [uv](https://docs.astral.sh/uv/) is used to manage dependencies; refer to its installation
-instructions for you platform if you don't already have it. Then run `uv sync` to use only
-the `sitegen` command, or `uv sync --dev` to install also development dependencies.
+instructions for you platform if you don't already have it. Then run `uv sync` to use only the
+`sitegen` command, or `uv sync --dev` to install also development dependencies. The `justfile`
+contains commands for formatting, linting and type-checking.
 
 ## Hosting a site on AWS
 
@@ -40,8 +41,6 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 
 ## Todos
 
-- [x] Skip also directory starting with `draft`
-- [x] Replace pipenv with uv
 - [ ] Add typing with ty
 - [ ] Add ruff
 - [ ] Do not generate if exists, make it configurable
@@ -49,7 +48,10 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 - [ ] Use pandoc to generate HTML from various formats
 - [ ] Paging
 - [ ] Search
+
 - [x] Tag pages
 - [x] Base URL context field
 - [x] Code highlighting
 - [x] Flat page
+- [x] Skip also directory starting with `draft`
+- [x] Replace pipenv with uv

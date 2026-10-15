@@ -1,6 +1,7 @@
 """
 Content processing code for sitegen
 """
+
 import os
 from dataclasses import dataclass
 from datetime import datetime
@@ -46,7 +47,7 @@ class RenderMixin:
         directory = self.get_output_directory(public_dir)
         os.makedirs(directory, exist_ok=True)
         filepath = os.path.join(directory, self.get_filename())
-        with open(filepath, "w", encoding='utf-8') as target_file:
+        with open(filepath, "w", encoding="utf-8") as target_file:
             target_file.write(template.render(**context))
 
 
@@ -271,7 +272,7 @@ class ContentFile(RenderMixin):
             return self._html_content
         md_bytes = self.abspath.read_bytes()
         encoding = chardet.detect(md_bytes)
-        md_content = md_bytes.decode(encoding['encoding'])
+        md_content = md_bytes.decode(encoding["encoding"])
         self._markdown = Markdown(
             extensions=["smarty", "meta", "fenced_code", "codehilite"]
         )
@@ -293,8 +294,10 @@ class ContentFile(RenderMixin):
             try:
                 self._metadata["date"] = dateparse(self._metadata["date"])
             except ValueError:
-                msg = f"Error parsing content file {self.abspath}," \
+                msg = (
+                    f"Error parsing content file {self.abspath},"
                     f"invalid date format: {self._metadata['date']}"
+                )
                 raise SitegenRenderError(msg) from None
         if "draft" in self._metadata:
             value = self._metadata["draft"]
