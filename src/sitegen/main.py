@@ -33,7 +33,8 @@ class SitegenConfigurationError(Exception):
 
 
 def load_config():
-    config = tomllib.load("site.toml")
+    with open("site.toml", "rb") as site_config:
+        config = tomllib.load(site_config)
     try:
         validated = ConfigSchema.validate(config)
     except SchemaError as schema_error:

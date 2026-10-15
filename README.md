@@ -5,10 +5,9 @@ change, so that you can refer to the code instead of documentation,
 
 ## Installation
 
-[pipenv](https://pipenv.pypa.io/en/latest/) is used to manage dependencies;
-refer to its installation instructions for you platform if you don't already
-have it. Then run `pipenv install` to use only the `sitegen` command, or `pipenv
-install --dev` to install also development dependencies.
+[uv](https://docs.astral.sh/uv/) is used to manage dependencies; refer to its installation
+instructions for you platform if you don't already have it. Then run `uv sync` to use only
+the `sitegen` command, or `uv sync --dev` to install also development dependencies.
 
 ## Hosting a site on AWS
 
@@ -42,8 +41,9 @@ And then reference the `styles.css` file as a stylesheet in your base template.
 ## Todos
 
 - [x] Skip also directory starting with `draft`
-- [ ] Replace pipenv with poetry
-- [ ] Add isort, black and pylint
+- [x] Replace pipenv with uv
+- [ ] Add typing with ty
+- [ ] Add ruff
 - [ ] Do not generate if exists, make it configurable
 - [ ] RSS feed
 - [ ] Use pandoc to generate HTML from various formats
